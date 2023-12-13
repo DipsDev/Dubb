@@ -1,10 +1,9 @@
 package models.ast;
 
-import models.ast.interfaces.MathExpression;
 import models.ast.types.ASTNode;
 import models.ast.types.ASTNodeType;
 
-public class NumericLiteral extends ASTNode implements MathExpression {
+public class NumericLiteral extends ASTNode {
 
     private int value;
 
@@ -13,8 +12,7 @@ public class NumericLiteral extends ASTNode implements MathExpression {
         this.value = value;
     }
 
-    @Override
-    public int evaluate() {
-        return this.value;
+    public int getValue() {
+        return value;
     }
 }

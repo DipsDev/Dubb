@@ -9,7 +9,11 @@ public enum TokenType {
 
     IDENTIFIER,
 
+    STRING,
+
     VAR,
+
+    EOL,
 
     EOF,
 

@@ -43,7 +43,22 @@ public class Lexer {
             }
             else if (current == ' ' || current == '\n' || current == '\t') {
                 // Ignore blank chars
+
+                // Sign that the line ended
+                if (current == '\n') {
+                    list.add(new Token(TokenType.EOL, "eol"));
+                }
                 continue;
+            }
+            else if (current == '"') {
+                // Start of a string
+                StringBuilder stringVal = new StringBuilder();
+                while (!code.isEmpty() && code.peek() != '"') {
+                    stringVal.append(code.remove());
+                }
+                // Remove the last "
+                code.remove();
+                list.add(new Token(TokenType.STRING, stringVal.toString()));
             }
             else {
                 // Handle multicharacters
@@ -65,7 +80,6 @@ public class Lexer {
 
 
                     if (!this.reservedKeywords.containsKey(stringVar.toString())) {
-                        System.out.println(stringVar);
                         list.add(new Token(TokenType.IDENTIFIER, stringVar.toString()));
                     } else {
                         // Add reserved Words

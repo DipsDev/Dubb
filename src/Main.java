@@ -2,18 +2,22 @@ import models.token.Token;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Queue;
 
 public class Main {
-    public static void main(String[] args) {
-        String code = "8 / 4 - 2 * 6";
+    public static void main(String[] args) throws ParseException {
+        String code =   """
+                        var x = 8
+                        x + 0
+                        """;
 
-        Parser parser = new Parser(code);
+        Queue<Token> q = new Lexer().tokenize(code);
+        q.forEach(System.out::println);
 
-        try {
-            Runtime.printOutput(parser.buildTree());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+        Runtime.printOutput(new Parser(code).buildTree());
+
+
     }
 
     // The Task:
