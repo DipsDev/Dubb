@@ -18,7 +18,8 @@ public class Lexer {
     }
 
     private void addReservedKeywords() {
-        this.reservedKeywords.put("var", TokenType.VAR);
+        this.reservedKeywords.put("declare", TokenType.VAR);
+        this.reservedKeywords.put("change", TokenType.MODIFY);
 
     }
 

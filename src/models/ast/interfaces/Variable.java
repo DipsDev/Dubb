@@ -33,4 +33,5 @@ public abstract class Variable<T> extends ASTNode {
     public T getValue() {
         return value;
     }
+
 }

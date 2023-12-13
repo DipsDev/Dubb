@@ -41,6 +41,31 @@ public class Parser {
 
     }
 
+    // usage: modify x = 3
+    private ASTNode parseModifyStatements() throws ParseException {
+        this.tokens.remove(); // remove the modify keyword
+        Token variableName = this.tokens.remove();
+        if (this.tokens.peek().getType() != TokenType.EQUALS) {
+            throw new Error("Expected = after modify");
+        }
+        this.tokens.remove(); // remove the equal sign
+        Token variableValue = this.tokens.peek();
+        switch (variableValue.getType()) {
+            // Add more variable types
+            case STRING -> {
+                Token variableStringValue = this.tokens.remove();
+                return new ModifyVariable<>(variableName.getValue(), variableStringValue.getValue());
+            }
+            default -> {
+                ASTNode mathExpression = this.parseAdditiveExpression(); // can return NumberLiteral, or BinaryExpression
+                if (mathExpression instanceof BinaryExpression)
+                    return new ModifyVariable<>(variableName.getValue(), (BinaryExpression) mathExpression);
+                return new ModifyVariable<>(variableName.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+'));
+            }
+        }
+    }
+
+
     private ASTNode parseStatements() throws ParseException {
         Token token = this.tokens.peek();
         switch (token.getType()) {
@@ -50,6 +75,9 @@ public class Parser {
             case VAR -> {
                 // Variable declaration
                 return parseVariableDeclaration();
+            }
+            case MODIFY -> {
+                return parseModifyStatements();
             }
         }
         throw new Error("Unexpected Type " + token.getType());

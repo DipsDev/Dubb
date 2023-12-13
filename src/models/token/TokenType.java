@@ -11,6 +11,8 @@ public enum TokenType {
 
     STRING,
 
+    MODIFY,
+
     VAR,
 
     EOL,
