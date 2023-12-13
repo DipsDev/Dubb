@@ -5,15 +5,16 @@ public class Main {
         String code =   """
                         final var y = 10;
                         var x = 5 - y;
-                        x + 5;
-                        
+                        x = x + 9 * y;
+                        final var minus_2 = 0 - 2;
+                        x * minus_2;
                         """;
 
         // Queue<Token> q = new Lexer().tokenize(code);
         // q.forEach(System.out::println);
 
 
-        Runtime.printOutput(new Parser(code).buildTree());
+        Runtime.execute(new Parser(code).buildTree());
 
 
     }
@@ -39,6 +40,17 @@ public class Main {
 
     // Loops:
     // loop(myfunction);
+
+    // If statements:
+    // if (condition) then {
+    //      ...
+    // }
+    // else if {
+    //      ...
+    // }
+    // else {
+    //      ...
+    // }
 
 
 

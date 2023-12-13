@@ -80,7 +80,7 @@ public class Runtime {
         return computeBinaryExpression(be);
     }
 
-    public static void printOutput(Program program) {
+    public static void execute(Program program) {
        List<ASTNode> body = program.getBody();
        for (ASTNode nd : body) {
            if (nd instanceof BinaryExpression) {
