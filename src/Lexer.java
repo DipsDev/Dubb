@@ -18,8 +18,9 @@ public class Lexer {
     }
 
     private void addReservedKeywords() {
-        this.reservedKeywords.put("declare", TokenType.VAR);
-        this.reservedKeywords.put("change", TokenType.MODIFY);
+        this.reservedKeywords.put("var", TokenType.VAR);
+        this.reservedKeywords.put("final", TokenType.CONST);
+        this.reservedKeywords.put(";", TokenType.EOL);
 
     }
 
@@ -44,12 +45,10 @@ public class Lexer {
             }
             else if (current == ' ' || current == '\n' || current == '\t') {
                 // Ignore blank chars
-
-                // Sign that the line ended
-                if (current == '\n') {
-                    list.add(new Token(TokenType.EOL, "eol"));
-                }
                 continue;
+            }
+            else if (current == ';') {
+                list.add(new Token(TokenType.EOL, ";"));
             }
             else if (current == '"') {
                 // Start of a string
@@ -75,7 +74,7 @@ public class Lexer {
                 else if (Character.isAlphabetic(current)) {
                     StringBuilder stringVar = new StringBuilder();
                     stringVar.append(current);
-                    while (!code.isEmpty() && code.peek() != ' ' && code.peek() != '\n' && code.peek() != '=') {
+                    while (!code.isEmpty() && code.peek() != ' ' && code.peek() != ';' && code.peek() != '=') {
                         stringVar.append(code.remove());
                     }
 

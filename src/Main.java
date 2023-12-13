@@ -1,17 +1,13 @@
-import models.token.Token;
-
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Queue;
 
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        declare x = 4
-                        declare y = 1
-                        change x = y * 2 + x
-                        change y = x - y
-                        y + y * x
+                        var x = 5;
+                        x + 5;
+                        x = 7;
+                        x + 5;
+                        
                         """;
 
         // Queue<Token> q = new Lexer().tokenize(code);
@@ -28,5 +24,23 @@ public class Main {
 
     // Lexer -> Tokenize each character
     // Parser -> make the AST
+
+
+    // Source Code:
+
+    // Functions:
+    // func myfunction(param1, param2, param3) {
+    //        ...
+    // }
+
+    // Variables:
+    // var x = 4;
+    // final var y = 5;
+    // x = 5;
+
+    // Loops:
+    // loop(myfunction);
+
+
 
 }

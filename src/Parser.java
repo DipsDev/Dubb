@@ -32,7 +32,7 @@ public class Parser {
                 return new StringVariable(variable.getValue(), variableStringValue.getValue());
             }
             default -> {
-                ASTNode mathExpression = this.parseAdditiveExpression(); // can return NumberLiteral, or BinaryExpression
+                ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
                     return new IntegerVariable(variable.getValue(), (BinaryExpression) mathExpression);
                 return new IntegerVariable(variable.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+'));
@@ -42,9 +42,7 @@ public class Parser {
     }
 
     // usage: modify x = 3
-    private ASTNode parseModifyStatements() throws ParseException {
-        this.tokens.remove(); // remove the modify keyword
-        Token variableName = this.tokens.remove();
+    private ASTNode parseModifyStatements(Token variableName) throws ParseException {
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
             throw new Error("Expected = after modify");
         }
@@ -57,7 +55,7 @@ public class Parser {
                 return new ModifyVariable<>(variableName.getValue(), variableStringValue.getValue());
             }
             default -> {
-                ASTNode mathExpression = this.parseAdditiveExpression(); // can return NumberLiteral, or BinaryExpression
+                ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
                     return new ModifyVariable<>(variableName.getValue(), (BinaryExpression) mathExpression);
                 return new ModifyVariable<>(variableName.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+'));
@@ -70,44 +68,48 @@ public class Parser {
         Token token = this.tokens.peek();
         switch (token.getType()) {
             case NUMBER, IDENTIFIER -> {
-                return parseAdditiveExpression();
+                Token removed = this.tokens.remove();
+                if (this.tokens.peek().getType() == TokenType.EQUALS) {
+                    return parseModifyStatements(removed);
+                }
+                return parseAdditiveExpression(removed);
             }
             case VAR -> {
                 // Variable declaration
                 return parseVariableDeclaration();
             }
-            case MODIFY -> {
-                return parseModifyStatements();
-            }
         }
         throw new Error("Unexpected Type " + token.getType());
     }
 
-    private ASTNode parseAdditiveExpression() throws ParseException {
-        ASTNode left = this.parseMultiExpression();
+    private ASTNode parseAdditiveExpression(Token start) throws ParseException {
+        ASTNode left = this.parseMultiExpression(start);
 
         while (this.tokens.peek().getValue().equals("+") || this.tokens.peek().getValue().equals("-")) {
             Token operator = tokens.remove();
-            ASTNode right = this.parseMultiExpression();
+            ASTNode right = this.parseMultiExpression(null);
             left = new BinaryExpression(left, right, operator.getValue().charAt(0));
         }
         return left;
 
     }
 
-    private ASTNode parseMultiExpression() throws ParseException {
-        ASTNode left = this.parsePrimaryExpression();
+    private ASTNode parseMultiExpression(Token start) throws ParseException {
+        ASTNode left = this.parsePrimaryExpression(start);
 
         while (this.tokens.peek().getValue().equals("*") || this.tokens.peek().getValue().equals("/")) {
             Token operator = tokens.remove();
-            ASTNode right = this.parsePrimaryExpression();
+            ASTNode right = this.parsePrimaryExpression(null);
             left = new BinaryExpression(left, right, operator.getValue().charAt(0));
         }
         return left;
     }
 
-    private ASTNode parsePrimaryExpression() throws ParseException {
-        Token current = tokens.remove();
+    private ASTNode parsePrimaryExpression(Token start) throws ParseException {
+        Token current = start;
+        if (current == null) {
+            current = tokens.remove();
+        }
 
         switch (current.getType()) {
             case NUMBER -> {
