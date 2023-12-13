@@ -16,7 +16,7 @@ public class Parser {
     }
 
     // var x = 4
-    private ASTNode parseVariableDeclaration() throws ParseException {
+    private ASTNode parseVariableDeclaration(boolean isConstant) throws ParseException {
         this.tokens.remove(); // var
         Token variable = this.tokens.remove();
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
@@ -29,13 +29,13 @@ public class Parser {
             // Add more variable types
             case STRING -> {
                 Token variableStringValue = this.tokens.remove();
-                return new StringVariable(variable.getValue(), variableStringValue.getValue());
+                return new StringVariable(variable.getValue(), variableStringValue.getValue()).setConstant(isConstant);
             }
             default -> {
                 ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
                     return new IntegerVariable(variable.getValue(), (BinaryExpression) mathExpression);
-                return new IntegerVariable(variable.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+'));
+                return new IntegerVariable(variable.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
             }
         }
 
@@ -76,7 +76,11 @@ public class Parser {
             }
             case VAR -> {
                 // Variable declaration
-                return parseVariableDeclaration();
+                return parseVariableDeclaration(false);
+            }
+            case CONST -> {
+                this.tokens.remove(); // remove the const keywords
+                return parseVariableDeclaration(true);
             }
         }
         throw new Error("Unexpected Type " + token.getType());

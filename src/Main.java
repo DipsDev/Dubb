@@ -3,9 +3,8 @@ import java.text.ParseException;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        var x = 5;
-                        x + 5;
-                        x = 7;
+                        final var y = 10;
+                        var x = 5 - y;
                         x + 5;
                         
                         """;

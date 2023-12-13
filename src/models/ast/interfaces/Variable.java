@@ -8,7 +8,7 @@ public abstract class Variable<T> extends ASTNode {
     private final String name;
 
     private T value;
-    private final boolean isConstant;
+    private boolean isConstant;
 
     public Variable(String name, T initialValue) {
         super(ASTNodeType.IDENTIFIER);
@@ -23,6 +23,11 @@ public abstract class Variable<T> extends ASTNode {
 
     public boolean isConstant() {
         return isConstant;
+    }
+
+    public Variable<T> setConstant(boolean state) {
+        this.isConstant = state;
+        return this;
     }
 
 

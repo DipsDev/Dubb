@@ -23,12 +23,12 @@ public class Runtime {
 
         // if variable value is a number
         if (variable.getValue() instanceof BinaryExpression) {
-            RuntimeVariable rtVar = new RuntimeVariable(variable.getName(), traverseBinaryExpression((BinaryExpression) variable.getValue()));
+            RuntimeVariable rtVar = new RuntimeVariable(variable.getName(), traverseBinaryExpression((BinaryExpression) variable.getValue()), variable.isConstant());
             hashMap.put(variable.getName(), rtVar);
             return;
         }
         if (variable.getValue() instanceof  String) {
-            RuntimeVariable rtVar = new RuntimeVariable(variable.getName(), variable.getValue());
+            RuntimeVariable rtVar = new RuntimeVariable(variable.getName(), variable.getValue(), variable.isConstant());
             hashMap.put(variable.getName(), rtVar);
         }
 
@@ -94,15 +94,18 @@ public class Runtime {
                    throw new Error("Unknown variable usage: " + modifyVariable.getName());
                }
                RuntimeVariable var = hashMap.get(modifyVariable.getName());
-                   if (modifyVariable.getNewValue() instanceof String) {
-                       var.setValue(modifyVariable.getNewValue());
-                   }
-                   else if (modifyVariable.getNewValue() instanceof BinaryExpression binE) {
-                       var.setValue(traverseBinaryExpression(binE));
-                   }
-                   else {
-                       throw new RuntimeException("Unknown type");
-                   }
+               if (var.isConstant()) {
+                   throw new Error("Variable assignment to constant variable");
+               }
+               if (modifyVariable.getNewValue() instanceof String) {
+                   var.setValue(modifyVariable.getNewValue());
+               }
+               else if (modifyVariable.getNewValue() instanceof BinaryExpression binE) {
+                   var.setValue(traverseBinaryExpression(binE));
+               }
+               else {
+                   throw new RuntimeException("Unknown type");
+               }
                }
 
 
