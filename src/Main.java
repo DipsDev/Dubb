@@ -7,10 +7,11 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        declare slimbo = 4
-                        declare slimbo2 = 1
-                        change slimbo = slimbo * 2 + slimbo2
-                        declare slimbo = 3
+                        declare x = 4
+                        declare y = 1
+                        change x = y * 2 + x
+                        change y = x - y
+                        y + y * x
                         """;
 
         // Queue<Token> q = new Lexer().tokenize(code);
