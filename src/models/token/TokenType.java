@@ -11,7 +11,7 @@ public enum TokenType {
 
     VAR,
 
-    WHITESPACE,
+    EOF,
 
     BINARY_OPERATOR;
 

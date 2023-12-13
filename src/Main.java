@@ -1,14 +1,19 @@
 import models.token.Token;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        String code = "var x = 3";
+        String code = "8 / 4 - 2 * 6";
 
-        Lexer lexer = new Lexer();
-        ArrayList<Token> tokens = lexer.tokenize(code);
-        tokens.forEach(System.out::println);
+        Parser parser = new Parser(code);
+
+        try {
+            Runtime.printOutput(parser.buildTree());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     // The Task:

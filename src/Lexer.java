@@ -31,9 +31,9 @@ public class Lexer {
         }
         return queue;
     }
-    public ArrayList<Token> tokenize(String stringCode) {
+    public Queue<Token> tokenize(String stringCode) {
         Queue<Character> code = convertToQueue(stringCode);
-        ArrayList<Token> list = new ArrayList<>();
+        Queue<Token> list = new LinkedList<>();
         while (!code.isEmpty()) {
             char current = code.remove();
             if (current == '+' || current == '-' || current == '/' || current == '*') {
@@ -42,7 +42,8 @@ public class Lexer {
                 list.add(new Token(TokenType.EQUALS, Character.toString(current)));
             }
             else if (current == ' ' || current == '\n' || current == '\t') {
-                list.add(new Token(TokenType.WHITESPACE, Character.toString(current)));
+                // Ignore blank chars
+                continue;
             }
             else {
                 // Handle multicharacters
@@ -81,6 +82,7 @@ public class Lexer {
 
             }
         }
+        list.add(new Token(TokenType.EOF, "eof"));
         return list;
     }
 }
