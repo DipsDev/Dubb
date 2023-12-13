@@ -20,7 +20,7 @@ public class Parser {
         this.tokens.remove(); // var
         Token variable = this.tokens.remove();
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
-            throw new Error("Variables must have a value, expected equals sign");
+            throw new Error("Variables must start with an alphabetic character");
         }
         // Remove the equals sign
         this.tokens.remove();

@@ -15,7 +15,7 @@ public class Runtime {
     private static void applyVariableChanges(Variable<?> variable) {
         // check if variable already exists
         if (hashMap.containsKey(variable.getName())) {
-            throw new Error("Variable " + variable.getName() + " cannot be instantiated twice");
+            throw new Error("Variable `" + variable.getName() + "` cannot be instantiated twice");
         }
 
 
@@ -101,7 +101,7 @@ public class Runtime {
                        var.setValue(traverseBinaryExpression(binE));
                    }
                    else {
-                       throw new RuntimeException("Variables can only hold one type.");
+                       throw new RuntimeException("Unknown type");
                    }
                }
 

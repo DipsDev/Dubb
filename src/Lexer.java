@@ -75,17 +75,13 @@ public class Lexer {
                 else if (Character.isAlphabetic(current)) {
                     StringBuilder stringVar = new StringBuilder();
                     stringVar.append(current);
-                    while (!code.isEmpty() && Character.isAlphabetic(code.peek())) {
+                    while (!code.isEmpty() && code.peek() != ' ' && code.peek() != '\n' && code.peek() != '=') {
                         stringVar.append(code.remove());
                     }
 
 
-                    if (!this.reservedKeywords.containsKey(stringVar.toString())) {
-                        list.add(new Token(TokenType.IDENTIFIER, stringVar.toString()));
-                    } else {
-                        // Add reserved Words
-                        list.add(new Token(this.reservedKeywords.get(stringVar.toString()), stringVar.toString()));
-                    }
+                    // Add reserved Words
+                    list.add(new Token(this.reservedKeywords.getOrDefault(stringVar.toString(), TokenType.IDENTIFIER), stringVar.toString()));
 
 
 

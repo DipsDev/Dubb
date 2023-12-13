@@ -7,13 +7,14 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        declare x = 4
-                        change x = x * 3 + 2
-                        x + 1
+                        declare slimbo = 4
+                        declare slimbo2 = 1
+                        change slimbo = slimbo * 2 + slimbo2
+                        declare slimbo = 3
                         """;
 
-        Queue<Token> q = new Lexer().tokenize(code);
-        q.forEach(System.out::println);
+        // Queue<Token> q = new Lexer().tokenize(code);
+        // q.forEach(System.out::println);
 
 
         Runtime.printOutput(new Parser(code).buildTree());
