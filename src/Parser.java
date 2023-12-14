@@ -1,4 +1,5 @@
 import models.ast.*;
+import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
 import models.ast.types.ASTNode;
 import models.token.Token;
@@ -34,7 +35,7 @@ public class Parser {
             case IDENTIFIER -> {
                 Token variableName = this.tokens.remove();
                 if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
-                    return parseFunctionCall(variableName);
+                    return new UnknownVariable(variable.getValue(), parseFunctionCall(variableName));
                 }
                 ASTNode mathExpression = this.parseAdditiveExpression(variableName); // can return NumberLiteral, or BinaryExpression
                 return new IntegerVariable(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);

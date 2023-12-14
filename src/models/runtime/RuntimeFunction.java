@@ -19,6 +19,8 @@ public class RuntimeFunction {
 
     private HashMap<String, RuntimeVariable> scopeVariables;
 
+    private HashMap<String, RuntimeVariable> givenVariables;
+
     private HashMap<String, RuntimeFunction> functionHashMap;
 
     public RuntimeFunction(String name, List<String> argumentNames, List<ASTNode> body) {
@@ -32,6 +34,8 @@ public class RuntimeFunction {
     private void clearVariables() {
         this.scopeVariables.clear();
     }
+
+
 
     private void applyVariableChanges(Variable<?> variable) {
         // check if variable already exists
@@ -161,7 +165,18 @@ public class RuntimeFunction {
                 throw new Error("Cannot add strings");
             }
         }
-        throw new Error("Not Implemented");
+        else if (arg instanceof FunctionCall functionCall) {
+            if (!functionHashMap.containsKey(functionCall.getName())) {
+                throw new Error("Unknown function usage: " + functionCall.getName());
+            }
+            RuntimeFunction function = functionHashMap.get(functionCall.getName());
+            for (int i = 0; i<functionCall.getArguments().size(); i++) {
+                Object args1 = functionCall.getArguments().get(i);
+                functionCall.getArguments().set(i, evaluateArgument(args1));
+            }
+            return function.execute(functionCall.getArguments(), functionHashMap, givenVariables);
+        }
+        throw new Error("Not Implemented, got " + arg.getClass());
 
     }
 
@@ -220,6 +235,7 @@ public class RuntimeFunction {
 
         this.functionHashMap = (HashMap<String, RuntimeFunction>) functionHashMap.clone();
         this.scopeVariables = (HashMap<String, RuntimeVariable>) variableHashMap.clone();
+        this.givenVariables = (HashMap<String, RuntimeVariable>) variableHashMap.clone();
 
 
         if (this.argumentNames.size() != arguments.size()) {

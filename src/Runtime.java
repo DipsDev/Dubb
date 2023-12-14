@@ -5,6 +5,7 @@ import models.ast.types.ASTNode;
 import models.runtime.RuntimeFunction;
 import models.runtime.RuntimeVariable;
 
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,6 +31,18 @@ public class Runtime {
         if (variable.getValue() instanceof  String) {
             RuntimeVariable rtVar = new RuntimeVariable(variable.getName(), variable.getValue(), variable.isConstant());
             VARIABLE_HASH_MAP.put(variable.getName(), rtVar);
+        }
+        if (variable.getValue() instanceof FunctionCall functionCall) {
+            RuntimeFunction function = FUNCTION_HASH_MAP.get(functionCall.getName());
+            for (int i = 0; i<functionCall.getArguments().size(); i++) {
+                Object arg = functionCall.getArguments().get(i);
+                functionCall.getArguments().set(i, evaluateArgument(arg));
+            }
+            Object value = function.execute(functionCall.getArguments(), FUNCTION_HASH_MAP, VARIABLE_HASH_MAP);
+            RuntimeVariable createdVariable = new RuntimeVariable(functionCall.getName(), value);
+            VARIABLE_HASH_MAP.put(variable.getName(), createdVariable);
+
+
         }
     }
 

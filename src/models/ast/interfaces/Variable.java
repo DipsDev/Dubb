@@ -3,7 +3,7 @@ package models.ast.interfaces;
 import models.ast.types.ASTNode;
 import models.ast.types.ASTNodeType;
 
-public abstract class Variable<T> extends ASTNode {
+public class Variable<T> extends ASTNode {
 
     private final String name;
 
