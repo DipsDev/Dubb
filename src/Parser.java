@@ -36,8 +36,8 @@ public class Parser {
                 if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
                     return parseFunctionCall(variableName);
                 }
-                return parseAdditiveExpression(variableName);
-
+                ASTNode mathExpression = this.parseAdditiveExpression(variableName); // can return NumberLiteral, or BinaryExpression
+                return new IntegerVariable(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
 
             }
             default -> {
@@ -104,6 +104,7 @@ public class Parser {
                 }
                 case VAR -> {
                     // Variable declaration
+                    System.out.println(tokens.peek());
                     function.appendBodyStatement(parseVariableDeclaration(false));
                 }
                 case CONST -> {
