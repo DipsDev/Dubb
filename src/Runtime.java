@@ -1,11 +1,15 @@
 import models.ast.*;
+import models.ast.functions.Function;
+import models.ast.functions.FunctionCall;
 import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
-import models.ast.types.ASTNode;
+import models.ast.math.BinaryExpression;
+import models.ast.math.NumericLiteral;
+import models.ast.interfaces.ASTNode;
+import models.ast.variables.ModifyVariable;
 import models.runtime.RuntimeFunction;
 import models.runtime.RuntimeVariable;
 
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.List;
 

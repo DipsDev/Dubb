@@ -1,5 +1,6 @@
-package models.ast;
+package models.ast.variables;
 
+import models.ast.math.BinaryExpression;
 import models.ast.interfaces.Variable;
 
 public class IntegerVariable extends Variable<BinaryExpression> {

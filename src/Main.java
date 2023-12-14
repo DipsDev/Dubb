@@ -11,11 +11,9 @@ public class Main {
                             return a - b;
                         }
                         func f2(a, c, b) {
-                        
                             return f1(a, c - b);
-                       
                         }
-                        var x = f2(1,2,3);
+                        var x = 1 + f2(1,2,3);
                         final var y = x + 1;
                         y + 0;
                         """;

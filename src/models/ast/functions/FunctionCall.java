@@ -1,7 +1,7 @@
-package models.ast;
+package models.ast.functions;
 
-import models.ast.types.ASTNode;
-import models.ast.types.ASTNodeType;
+import models.ast.interfaces.ASTNode;
+import models.ast.interfaces.ASTNodeType;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package models.ast.types;
+package models.ast.interfaces;
 
 public enum ASTNodeType {
     PROGRAM,

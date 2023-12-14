@@ -1,8 +1,5 @@
 package models.ast.interfaces;
 
-import models.ast.types.ASTNode;
-import models.ast.types.ASTNodeType;
-
 public class VariableInstance extends ASTNode {
     private String name;
 

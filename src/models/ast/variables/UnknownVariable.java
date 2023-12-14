@@ -1,4 +1,4 @@
-package models.ast;
+package models.ast.variables;
 
 import models.ast.interfaces.Variable;
 
