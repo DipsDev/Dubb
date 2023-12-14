@@ -31,6 +31,15 @@ public class Parser {
                 Token variableStringValue = this.tokens.remove();
                 return new StringVariable(variable.getValue(), variableStringValue.getValue()).setConstant(isConstant);
             }
+            case IDENTIFIER -> {
+                Token variableName = this.tokens.remove();
+                if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
+                    return parseFunctionCall(variableName);
+                }
+                return parseAdditiveExpression(variableName);
+
+
+            }
             default -> {
                 ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
@@ -41,10 +50,93 @@ public class Parser {
 
     }
 
-    // usage: modify x = 3
+    private ASTNode parseReturnStatement() throws ParseException {
+        this.tokens.remove(); // remove the RETURN keyword
+        Token returnValue = this.tokens.remove();
+        if (returnValue.getType() == TokenType.NUMBER) {
+            return new ReturnExpression(parseAdditiveExpression(returnValue));
+        }
+        if (returnValue.getType() == TokenType.IDENTIFIER) {
+            if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
+                return new ReturnExpression(parseFunctionCall(returnValue));
+            }
+            return new ReturnExpression(parseAdditiveExpression(returnValue));
+
+
+        }
+        throw new Error("Not implemented, return type of " + returnValue.getType());
+
+
+    }
+
+    private ASTNode parseFunctionDeclaration() throws ParseException {
+        // func name(args) {}
+        this.tokens.remove(); // removes the func keyword
+        Token nameWithArguments = this.tokens.remove();
+        if (nameWithArguments.getType() != TokenType.IDENTIFIER) {
+            throw new Error("Unexpected Token " + nameWithArguments.getType());
+        }
+
+        Function function = new Function(nameWithArguments.getValue());
+        if (this.tokens.remove().getType() != TokenType.OPEN_PARAN) {
+            throw new Error("Unexpected Token " + nameWithArguments.getType());
+        }
+        while (this.tokens.peek().getType() != TokenType.CLOSE_PARAN) {
+            function.appendArgument(this.tokens.remove().getValue());
+        }
+        this.tokens.remove(); // remove the close parenthesis
+        if (this.tokens.remove().getType() != TokenType.OPEN_STATEMENT) {
+            throw new Error("Unexpected Token " + nameWithArguments.getType());
+        }
+
+        // append body to the function
+        while (this.tokens.peek().getType() != TokenType.CLOSE_STATEMENT) {
+            switch (tokens.peek().getType()) {
+                case NUMBER, IDENTIFIER -> {
+                    Token removed = this.tokens.remove();
+                    if (this.tokens.peek().getType() == TokenType.EQUALS) {
+                        function.appendBodyStatement(parseModifyStatements(removed));
+                    }
+                    else if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) { // start of function call
+                        function.appendBodyStatement(parseFunctionCall(removed));
+                    }
+                    function.appendBodyStatement(parseAdditiveExpression(removed));
+                }
+                case VAR -> {
+                    // Variable declaration
+                    function.appendBodyStatement(parseVariableDeclaration(false));
+                }
+                case CONST -> {
+                    this.tokens.remove(); // remove the const keywords
+                    function.appendBodyStatement(parseVariableDeclaration(true));
+                }
+                case EOL -> {
+                    this.tokens.remove();
+                }
+                case RETURN -> {
+                    function.appendBodyStatement(parseReturnStatement());
+
+                }
+                default -> {
+                    throw new ParseException("Couldn't parse correctly, got type " + tokens.peek().getType(), tokens.size());
+                }
+            }
+        }
+        // remove the close statement
+        this.tokens.remove();
+
+        return function;
+
+
+
+
+
+    }
+
+    // usage: x = 3
     private ASTNode parseModifyStatements(Token variableName) throws ParseException {
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
-            throw new Error("Expected = after modify");
+            throw new Error("Expected = after modify statement");
         }
         this.tokens.remove(); // remove the equal sign
         Token variableValue = this.tokens.peek();
@@ -63,6 +155,31 @@ public class Parser {
         }
     }
 
+    private ASTNode parseFunctionCall(Token name) throws ParseException {
+        FunctionCall func = new FunctionCall(name.getValue());
+        this.tokens.remove(); // remove the open paran
+        while (this.tokens.peek().getType() != TokenType.CLOSE_PARAN) {
+            // could be either a variable or a number or a string
+            switch (this.tokens.peek().getType()) {
+                // Add more variable types
+                case STRING -> {
+                    Token stringArg = this.tokens.remove();
+                    func.appendArg(stringArg.getValue());
+                }
+                case NUMBER, IDENTIFIER -> {
+                    Token current = tokens.remove();
+                    ASTNode mathExpression = this.parseAdditiveExpression(current);
+                    func.appendArg(mathExpression);
+                }
+                default -> {
+                    throw new Error("Not Implemented, got " + this.tokens.peek().getType());
+                }
+            }
+        }
+        this.tokens.remove(); // remove the close paran
+        return func;
+    }
+
 
     private ASTNode parseStatements() throws ParseException {
         Token token = this.tokens.peek();
@@ -71,6 +188,8 @@ public class Parser {
                 Token removed = this.tokens.remove();
                 if (this.tokens.peek().getType() == TokenType.EQUALS) {
                     return parseModifyStatements(removed);
+                } else if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) { // start of function call
+                    return parseFunctionCall(removed);
                 }
                 return parseAdditiveExpression(removed);
             }
@@ -81,6 +200,9 @@ public class Parser {
             case CONST -> {
                 this.tokens.remove(); // remove the const keywords
                 return parseVariableDeclaration(true);
+            }
+            case FUNCTION -> {
+                return parseFunctionDeclaration();
             }
         }
         throw new Error("Unexpected Type " + token.getType());
@@ -120,7 +242,11 @@ public class Parser {
                 return new NumericLiteral(Integer.parseInt(current.getValue()));
             }
             case IDENTIFIER -> {
-                return new VariableInstance(current.getValue());
+                // could be a variable usage, or a function call
+                if (this.tokens.peek().getType() != TokenType.OPEN_PARAN) {
+                    return new VariableInstance(current.getValue());
+                }
+                return new BinaryExpression(parseFunctionCall(current), new NumericLiteral(0), '+');
             }
             default -> {
                 throw new ParseException("Couldn't parse correctly, got type " + current.getType(), tokens.size());

@@ -21,6 +21,8 @@ public class Lexer {
         this.reservedKeywords.put("var", TokenType.VAR);
         this.reservedKeywords.put("final", TokenType.CONST);
         this.reservedKeywords.put(";", TokenType.EOL);
+        this.reservedKeywords.put("func", TokenType.FUNCTION);
+        this.reservedKeywords.put("return", TokenType.RETURN);
 
     }
 
@@ -43,9 +45,21 @@ public class Lexer {
             } else if (current == '=') {
                 list.add(new Token(TokenType.EQUALS, Character.toString(current)));
             }
-            else if (current == ' ' || current == '\n' || current == '\t') {
+            else if (current == ' ' || current == '\n' || current == '\t' || current == ',') {
                 // Ignore blank chars
                 continue;
+            }
+            else if (current == '{') {
+                list.add(new Token(TokenType.OPEN_STATEMENT, "{"));
+            }
+            else if (current == '}') {
+                list.add(new Token(TokenType.CLOSE_STATEMENT, "}"));
+            }
+            else if (current == '(') {
+                list.add(new Token(TokenType.OPEN_PARAN, "("));
+            }
+            else if (current == ')') {
+                list.add(new Token(TokenType.CLOSE_PARAN, ")"));
             }
             else if (current == ';') {
                 list.add(new Token(TokenType.EOL, ";"));
@@ -74,7 +88,7 @@ public class Lexer {
                 else if (Character.isAlphabetic(current)) {
                     StringBuilder stringVar = new StringBuilder();
                     stringVar.append(current);
-                    while (!code.isEmpty() && code.peek() != ' ' && code.peek() != ';' && code.peek() != '=') {
+                    while (!code.isEmpty() && (Character.isAlphabetic(code.peek()) || Character.isDigit(code.peek()))) {
                         stringVar.append(code.remove());
                     }
 

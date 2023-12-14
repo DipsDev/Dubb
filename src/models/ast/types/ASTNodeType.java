@@ -5,4 +5,8 @@ public enum ASTNodeType {
     NUMERIC_LITERAL,
     IDENTIFIER,
     BINARY_EXPR,
+
+    RETURN,
+
+    FUNCTION;
 }

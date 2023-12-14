@@ -12,6 +12,15 @@ public enum TokenType {
     STRING,
 
     CONST,
+    FUNCTION,
+
+    OPEN_STATEMENT, // {
+    CLOSE_STATEMENT, // }
+
+    OPEN_PARAN, // (
+    CLOSE_PARAN, // )
+
+    RETURN,
 
     VAR,
 
