@@ -2,14 +2,12 @@ import models.ast.*;
 import models.ast.functions.Function;
 import models.ast.functions.FunctionCall;
 import models.ast.functions.ReturnExpression;
+import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
-import models.ast.math.BinaryExpression;
-import models.ast.math.NumericLiteral;
+import models.ast.types.BinaryExpression;
+import models.ast.types.NumericLiteral;
 import models.ast.interfaces.ASTNode;
-import models.ast.variables.IntegerVariable;
-import models.ast.variables.ModifyVariable;
-import models.ast.variables.StringVariable;
-import models.ast.variables.UnknownVariable;
+import models.ast.functions.ModifyVariable;
 import models.token.Token;
 import models.token.TokenType;
 
@@ -38,22 +36,22 @@ public class Parser {
             // Add more variable types
             case STRING -> {
                 Token variableStringValue = this.tokens.remove();
-                return new StringVariable(variable.getValue(), variableStringValue.getValue()).setConstant(isConstant);
+                return new Variable<>(variable.getValue(), variableStringValue.getValue()).setConstant(isConstant);
             }
             case IDENTIFIER -> {
                 Token variableName = this.tokens.remove();
                 if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
-                    return new UnknownVariable(variable.getValue(), parseFunctionCall(variableName));
+                    return new Variable<>(variable.getValue(), parseFunctionCall(variableName));
                 }
                 ASTNode mathExpression = this.parseAdditiveExpression(variableName); // can return NumberLiteral, or BinaryExpression
-                return new IntegerVariable(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
+                return new Variable<BinaryExpression>(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
 
             }
             default -> {
                 ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
-                    return new IntegerVariable(variable.getValue(), (BinaryExpression) mathExpression);
-                return new IntegerVariable(variable.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
+                    return new Variable<BinaryExpression>(variable.getValue(), (BinaryExpression) mathExpression);
+                return new Variable<BinaryExpression>(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
             }
         }
 
@@ -253,6 +251,7 @@ public class Parser {
             }
             case IDENTIFIER -> {
                 // could be a variable usage, or a function call
+                assert this.tokens.peek() != null;
                 if (this.tokens.peek().getType() != TokenType.OPEN_PARAN) {
                     return new VariableInstance(current.getValue());
                 }
@@ -269,6 +268,7 @@ public class Parser {
         Program program = new Program();
 
         while (!tokens.isEmpty() && tokens.peek().getType() != TokenType.EOF) {
+            assert this.tokens.peek() != null;
             if (tokens.peek().getType() == TokenType.EOL) {
                 tokens.remove();
                 continue;

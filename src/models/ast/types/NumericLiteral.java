@@ -1,4 +1,4 @@
-package models.ast.math;
+package models.ast.types;
 
 import models.ast.interfaces.ASTNode;
 import models.ast.interfaces.ASTNodeType;

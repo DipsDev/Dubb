@@ -6,23 +6,22 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        func f1(a, b) {
-                            a + b;
-                            return a - b;
+                        func f2(num) {
+                            return num * num;
                         }
-                        func f2(a, c, b) {
-                            return f1(a, c - b);
+                        func pow(num) {
+                            return num * f2(num);
                         }
-                        var x = 1 + f2(1,2,3);
-                        final var y = x + 1;
-                        y + 0;
+                        
+                        final var x = pow(2);
+                        x + 0;
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);
         q.forEach(System.out::println);
 
 
-        Runtime.execute(new Parser(code).buildTree());
+        Runtime.getInstance().execute(new Parser(code).buildTree());
 
 
     }
