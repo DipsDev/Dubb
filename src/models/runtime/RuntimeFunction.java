@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class RuntimeFunction extends MemoryStore {
+public class RuntimeFunction extends MemoryStore implements Executable {
 
     private String name;
     private List<String> argumentNames;
@@ -43,7 +43,7 @@ public class RuntimeFunction extends MemoryStore {
     }
 
 
-    public Object execute(List<Object> arguments, HashMap<String, RuntimeFunction> functionHashMap, HashMap<String, RuntimeVariable> variableHashMap) throws Error {
+    public Object execute(List<Object> arguments, HashMap<String, Executable> functionHashMap, HashMap<String, RuntimeVariable> variableHashMap) throws Error {
 
         this.resetStores(variableHashMap, functionHashMap);
 

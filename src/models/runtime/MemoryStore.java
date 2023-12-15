@@ -15,13 +15,13 @@ import java.util.List;
 public abstract class MemoryStore {
     protected HashMap<String, RuntimeVariable> scopeVariables;
 
-    protected HashMap<String, RuntimeFunction> functionHashMap;
+    protected HashMap<String, Executable> functionHashMap;
 
     public MemoryStore() {
     }
 
-    public void resetStores(HashMap<String, RuntimeVariable> scopeVariables, HashMap<String, RuntimeFunction> scopeFunctions) {
-        if (this.scopeVariables != null) {
+    public void resetStores(HashMap<String, RuntimeVariable> scopeVariables, HashMap<String, Executable> scopeFunctions) {
+        if (this.scopeVariables != null && this.functionHashMap != null) {
             this.scopeVariables.clear();
             this.functionHashMap.clear();
             this.functionHashMap.putAll(scopeFunctions);
@@ -32,17 +32,28 @@ public abstract class MemoryStore {
         }
     }
 
+    public void resetStores(HashMap<String, Executable> scopeFunctions) {
+        if (this.scopeVariables != null && this.functionHashMap != null) {
+            this.scopeVariables.clear();
+            this.functionHashMap.clear();
+            this.functionHashMap.putAll(scopeFunctions);
+        } else {
+            this.scopeVariables = new HashMap<>();
+            this.functionHashMap = new HashMap<>(scopeFunctions);
+        }
+
+    }
+
     public void resetStores() {
-        if (this.scopeVariables != null) {
+        if (this.scopeVariables != null && this.functionHashMap != null) {
             this.scopeVariables.clear();
             this.functionHashMap.clear();
         } else {
             this.scopeVariables = new HashMap<>();
             this.functionHashMap = new HashMap<>();
         }
-
-
     }
+
 
     // The function evaluates an object to it's value
     protected Object evaluateObject(Object arg) {
@@ -78,11 +89,8 @@ public abstract class MemoryStore {
             if (!functionHashMap.containsKey(functionCall.getName())) {
                 throw new Error("Unknown function usage: " + functionCall.getName());
             }
-            RuntimeFunction function = functionHashMap.get(functionCall.getName());
-            for (int i = 0; i<functionCall.getArguments().size(); i++) {
-                Object args1 = functionCall.getArguments().get(i);
-                functionCall.getArguments().set(i, evaluateObject(args1));
-            }
+            Executable function = functionHashMap.get(functionCall.getName());
+            functionCall.getArguments().replaceAll(this::evaluateObject);
             return function.execute(functionCall.getArguments(), functionHashMap, scopeVariables);
         }
         throw new Error("Not Implemented, got " + arg.getClass() + " " + arg.toString());
@@ -160,12 +168,8 @@ public abstract class MemoryStore {
             if (!functionHashMap.containsKey(fc.getName())) {
                 throw new Error("Unknown function usage: " + fc.getName());
             }
-            RuntimeFunction function = functionHashMap.get(fc.getName());
-            for (int i = 0; i<fc.getArguments().size(); i++) {
-                Object arg = fc.getArguments().get(i);
-                fc.getArguments().set(i, evaluateObject(arg));
-
-            }
+            Executable function = functionHashMap.get(fc.getName());
+            fc.getArguments().replaceAll(this::evaluateObject);
             Object functionReturnValue = function.execute(fc.getArguments(), functionHashMap, scopeVariables);
             if (!(functionReturnValue instanceof Number)) {
                 throw new Error("Cannot add types other than numbers");
@@ -202,7 +206,8 @@ public abstract class MemoryStore {
             if (!functionHashMap.containsKey(functionCall.getName())) {
                 throw new Error("Unknown function usage: " + functionCall.getName());
             }
-            RuntimeFunction function = functionHashMap.get(functionCall.getName());
+
+            Executable function = functionHashMap.get(functionCall.getName());
             for (int i = 0; i<functionCall.getArguments().size(); i++) {
                 Object arg = functionCall.getArguments().get(i);
                 if (arg instanceof String) {

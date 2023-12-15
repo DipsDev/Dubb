@@ -14,7 +14,7 @@ public class Main {
                         }
                         
                         final var x = pow(2);
-                        x + 0;
+                        print(x, 4, 5, 6);
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);
