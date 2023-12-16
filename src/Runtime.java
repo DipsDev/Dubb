@@ -19,14 +19,26 @@ public class Runtime extends MemoryStore {
         return __instance;
     }
 
+    private void addGlobalFunction(GlobalFunction func) {
+        globalFunctions.put(func.getName(), func);
+    }
+
     public void addGlobalFunctions() {
-        GlobalFunction print = new GlobalFunction("print", (arguments) -> {
+        GlobalFunction print = new GlobalFunction("print", -1).run((arguments) -> {
             arguments.forEach((d) -> {
                 System.out.print(d + " ");
             });
             return null;
         });
-        globalFunctions.put("print", print);
+        addGlobalFunction(print);
+
+        GlobalFunction pow = new GlobalFunction("pow", 2).run((arguments) -> {
+            if (!(arguments.get(0) instanceof Number) || !(arguments.get(1) instanceof Number)) {
+                throw new Error("Pow function receives only number values");
+            }
+            return Math.pow(((Number) arguments.get(0)).doubleValue(), ((Number) arguments.get(1)).doubleValue());
+        });
+        addGlobalFunction(pow);
     }
 
     public void execute(Program program) {

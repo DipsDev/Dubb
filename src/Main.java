@@ -8,7 +8,10 @@ public class Main {
         String code =   """
                         var x = 10;
                         var y = 10;
-                        print(y != x);
+                        func sum(a, b) {
+                            return a + b;
+                        }
+                        print(sum(x, y));
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);

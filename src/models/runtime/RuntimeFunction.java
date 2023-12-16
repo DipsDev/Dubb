@@ -48,7 +48,8 @@ public class RuntimeFunction extends MemoryStore implements Executable {
         this.resetStores(variableHashMap, functionHashMap);
 
         if (this.argumentNames.size() != arguments.size()) {
-            throw new Error("Not enough arguments were supplied");
+
+            throw new Error("Bad arguments, func " + this.name + " gets only " + this.argumentNames.size() + " arguments");
         }
         // Initialize scope variables
         for (int i = 0; i<this.argumentNames.size(); i++) {

@@ -261,8 +261,52 @@ public abstract class MemoryStore {
         // convert Function to runtime function
         RuntimeFunction runtimeFunction = new RuntimeFunction(variable.getName(), variable.getArguments(), variable.getBody());
         functionHashMap.put(variable.getName(), runtimeFunction);
+    }
 
+    protected Object resolveFunctionCall(FunctionCall functionCall) {
+        if (!functionHashMap.containsKey(functionCall.getName())) {
+            throw new Error("Unknown function usage: " + functionCall.getName());
+        }
 
+        Executable function = functionHashMap.get(functionCall.getName());
+        for (int i = 0; i<functionCall.getArguments().size(); i++) {
+            Object arg = functionCall.getArguments().get(i);
+            if (arg instanceof String) {
+                functionCall.getArguments().set(i, arg);
+            }
+            else if (arg instanceof BinaryExpression binE) {
+                functionCall.getArguments().set(i, evaluateBinaryExpression(binE));
+            }
+            else if (arg instanceof NumericLiteral) {
+                functionCall.getArguments().set(i, ((NumericLiteral) arg).getValue());
+            }
+            else if (arg instanceof BooleanExpression be) {
+                functionCall.getArguments().set(i, evaluateBooleanExpression(be));
+            }
+            else if (arg instanceof FunctionCall call) {
+                functionCall.getArguments().set(i, this.resolveFunctionCall(call));
+            }
+            else if (arg instanceof VariableInstance vi) {
+                if (!scopeVariables.containsKey(vi.getName())) {
+                    throw new Error("Unknown variable usage: " + vi.getName());
+                }
+
+                // check if the variable is being reused
+
+                RuntimeVariable var = scopeVariables.get(vi.getName());
+                if (var.getValue() instanceof Number) {
+                    functionCall.getArguments().set(i, ((Number) var.getValue()).doubleValue());
+                }
+                else if (var.getValue() instanceof Boolean) {
+                    functionCall.getArguments().set(i, var.getValue());
+                }
+                else {
+                    throw new Error("Variable type isn't supported, got type " + var.getValue().getClass());
+                }
+            }
+
+        }
+        return function.execute(functionCall.getArguments(), functionHashMap, scopeVariables);
     }
 
 
@@ -277,49 +321,8 @@ public abstract class MemoryStore {
             applyFunctionChanges((Function) nd);
         }
         else if (nd instanceof FunctionCall functionCall) {
-            if (!functionHashMap.containsKey(functionCall.getName())) {
-                throw new Error("Unknown function usage: " + functionCall.getName());
-            }
-
-            Executable function = functionHashMap.get(functionCall.getName());
-            for (int i = 0; i<functionCall.getArguments().size(); i++) {
-                Object arg = functionCall.getArguments().get(i);
-                if (arg instanceof String) {
-                    functionCall.getArguments().set(i, arg);
-                }
-                else if (arg instanceof BinaryExpression binE) {
-                    functionCall.getArguments().set(i, evaluateBinaryExpression(binE));
-                }
-                else if (arg instanceof NumericLiteral) {
-                    functionCall.getArguments().set(i, ((NumericLiteral) arg).getValue());
-                }
-                else if (arg instanceof BooleanExpression be) {
-                    functionCall.getArguments().set(i, evaluateBooleanExpression(be));
-                }
-                else if (arg instanceof VariableInstance vi) {
-                    if (!scopeVariables.containsKey(vi.getName())) {
-                        throw new Error("Unknown variable usage: " + vi.getName());
-                    }
-
-                    // check if the variable is being reused
-
-                    RuntimeVariable var = scopeVariables.get(vi.getName());
-                    if (var.getValue() instanceof Number) {
-                        functionCall.getArguments().set(i, ((Number) var.getValue()).doubleValue());
-                    }
-                    if (var.getValue() instanceof Boolean) {
-                        functionCall.getArguments().set(i, var.getValue());
-                    }
-                    else {
-                        throw new Error("Variable type isn't supported, got type " + var.getValue().getClass());
-                    }
-                }
-
-            }
-            function.execute(functionCall.getArguments(), functionHashMap, scopeVariables);
+            this.resolveFunctionCall(functionCall);
         }
-
-
         else if (nd instanceof Variable<?>) {
             applyVariableChanges((Variable<?>) nd);
         }
