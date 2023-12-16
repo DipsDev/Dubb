@@ -178,7 +178,7 @@ public abstract class MemoryStore {
 
 
         // convert Variable to runtime variable
-        RuntimeVariable runtimeVariable = new RuntimeVariable(variable.getName(), this.evaluateObject(variable.getValue()));
+        RuntimeVariable runtimeVariable = new RuntimeVariable(variable.getName(), this.evaluateObject(variable.getValue()), variable.isConstant());
        this.scopeVariables.put(variable.getName(), runtimeVariable);
     }
 
