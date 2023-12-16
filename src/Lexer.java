@@ -13,10 +13,11 @@ public class Lexer {
     public Lexer() {
         reservedKeywords = new HashMap<>();
         this.addReservedKeywords();
-
-
     }
 
+    /**
+     * Registers the reserved keywords
+     */
     private void addReservedKeywords() {
         this.reservedKeywords.put("var", TokenType.VAR);
         this.reservedKeywords.put("final", TokenType.CONST);
@@ -27,7 +28,11 @@ public class Lexer {
     }
 
 
-
+    /**
+     * Converts a sourcecode to a queue, which can be tokenized by the lexer
+     * @param code the source code to be represented as a queue
+     * @return the source code as queue
+     */
     private Queue<Character> convertToQueue(String code) {
         Queue<Character> queue = new LinkedList<>();
         for (int i = 0; i<code.length(); i++) {
@@ -35,6 +40,12 @@ public class Lexer {
         }
         return queue;
     }
+
+    /**
+     * Tokenizes a source code, and returns its tokenized queue
+     * @param stringCode the source code to be tokenized
+     * @return the tokenized source code, as a queue
+     */
     public Queue<Token> tokenize(String stringCode) {
         Queue<Character> code = convertToQueue(stringCode);
         Queue<Token> list = new LinkedList<>();

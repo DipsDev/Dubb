@@ -11,8 +11,11 @@ import models.ast.types.BooleanExpression;
 import models.ast.types.NumericLiteral;
 
 import java.util.HashMap;
-import java.util.List;
 
+
+/**
+ * This class provides a skeletal body for a runtime that requires a store of variables and functions.
+ */
 public abstract class MemoryStore {
     protected HashMap<String, RuntimeVariable> scopeVariables;
 
@@ -21,6 +24,11 @@ public abstract class MemoryStore {
     public MemoryStore() {
     }
 
+    /**
+     * Resets all stores to an empty hashmap, or copies the given hashmaps if specified
+     * @param scopeVariables the variables that are currently at scope
+     * @param scopeFunctions the functions that are currently at scope
+     */
     public void resetStores(HashMap<String, RuntimeVariable> scopeVariables, HashMap<String, Executable> scopeFunctions) {
         if (this.scopeVariables != null && this.functionHashMap != null) {
             this.scopeVariables.clear();
@@ -33,6 +41,10 @@ public abstract class MemoryStore {
         }
     }
 
+    /**
+     * Resets all stores to an empty hashmap, or copies the given hashmaps if specified
+     * @param scopeFunctions the functions that are currently at scope
+     */
     public void resetStores(HashMap<String, Executable> scopeFunctions) {
         if (this.scopeVariables != null && this.functionHashMap != null) {
             this.scopeVariables.clear();
@@ -45,18 +57,12 @@ public abstract class MemoryStore {
 
     }
 
-    public void resetStores() {
-        if (this.scopeVariables != null && this.functionHashMap != null) {
-            this.scopeVariables.clear();
-            this.functionHashMap.clear();
-        } else {
-            this.scopeVariables = new HashMap<>();
-            this.functionHashMap = new HashMap<>();
-        }
-    }
 
-
-    // The function evaluates an object to it's value
+    /**
+     * Evaluates a value of an object, could be of type Boolean, String or Number.
+     * @param arg the object to be evaluated
+     * @return the value of the given object
+     */
     protected Object evaluateObject(Object arg) {
         if (arg instanceof String) {
             return arg;
@@ -102,6 +108,11 @@ public abstract class MemoryStore {
 
     }
 
+    /**
+     * Evaluates a boolean expression, and returns its value
+     * @param node the boolean expression node to be evaluated
+     * @return the value of the given boolean expression
+     */
     private boolean evaluateBooleanExpression(ASTNode node) {
         if (node == null) {
             return false;
@@ -144,6 +155,12 @@ public abstract class MemoryStore {
 
     }
 
+
+    /**
+     * Computes the next boolean traversal
+     * @param node the boolean expression to be traversed on
+     * @return the value of the boolean expression
+     */
     private boolean computeBooleanExpression(BooleanExpression node) {
         switch (node.getOperator()) {
             case "<=" -> {
@@ -170,6 +187,10 @@ public abstract class MemoryStore {
     }
 
 
+    /**
+     * Creates a new runtime variable
+     * @param variable the variable to be changed, with its new value
+     */
     protected void applyVariableChanges(Variable<?> variable) {
         // check if variable already exists
         if (this.scopeVariables.containsKey(variable.getName())) {
@@ -182,6 +203,11 @@ public abstract class MemoryStore {
        this.scopeVariables.put(variable.getName(), runtimeVariable);
     }
 
+    /**
+     * Creates a new runtime variable
+     * @param variableName the variable name to be created
+     * @param value the variable value to be set
+     */
     protected void applyVariableChanges(String variableName, Object value) {
         // check if variable already exists
         if (this.scopeVariables.containsKey(variableName)) {
@@ -195,6 +221,11 @@ public abstract class MemoryStore {
     }
 
 
+    /**
+     * Computes the next binary traversal
+     * @param be the binary expression to be traversed on
+     * @return the value of the binary expression
+     */
     private double computeBinaryExpression(BinaryExpression be) {
         switch (be.getOperator()) {
             case '+' -> {
@@ -213,6 +244,11 @@ public abstract class MemoryStore {
 
     }
 
+    /**
+     * Evaluates a binary expression, and returns its value
+     * @param node the binary expression node to be evaluated
+     * @return the value of the given binary expression
+     */
     private double evaluateBinaryExpression(ASTNode node) {
         if (node == null) {
             return 0;
@@ -251,18 +287,27 @@ public abstract class MemoryStore {
         return computeBinaryExpression((BinaryExpression) node);
     }
 
-    protected void applyFunctionChanges(Function variable) {
+    /**
+     * Created a new runtime function
+     * @param function the function to be created
+     */
+    protected void applyFunctionChanges(Function function) {
         // check if function already exists
-        if (this.functionHashMap.containsKey(variable.getName())) {
-            throw new Error("Function `" + variable.getName() + "` cannot be instantiated twice");
+        if (this.functionHashMap.containsKey(function.getName())) {
+            throw new Error("Function `" + function.getName() + "` cannot be instantiated twice");
         }
 
 
         // convert Function to runtime function
-        RuntimeFunction runtimeFunction = new RuntimeFunction(variable.getName(), variable.getArguments(), variable.getBody());
-        functionHashMap.put(variable.getName(), runtimeFunction);
+        RuntimeFunction runtimeFunction = new RuntimeFunction(function.getName(), function.getArguments(), function.getBody());
+        functionHashMap.put(function.getName(), runtimeFunction);
     }
 
+    /**
+     * Computes a function call of a runtime or global function
+     * @param functionCall the function call to be computed
+     * @return the value of the returned function call
+     */
     protected Object resolveFunctionCall(FunctionCall functionCall) {
         if (!functionHashMap.containsKey(functionCall.getName())) {
             throw new Error("Unknown function usage: " + functionCall.getName());
@@ -310,14 +355,12 @@ public abstract class MemoryStore {
     }
 
 
+    /**
+     * Runs the store main loop and handles changes
+     * @param nd current node to traverse on
+     */
     protected void run(ASTNode nd) {
-        if (nd instanceof BinaryExpression) {
-            evaluateBinaryExpression(nd);
-        }
-        if (nd instanceof BooleanExpression) {
-            evaluateBooleanExpression(nd);
-        }
-        else if (nd instanceof Function) {
+        if (nd instanceof Function) {
             applyFunctionChanges((Function) nd);
         }
         else if (nd instanceof FunctionCall functionCall) {
@@ -344,10 +387,8 @@ public abstract class MemoryStore {
                 throw new RuntimeException("Unknown type");
             }
         }
-
-
-        }
     }
+}
 
 
 

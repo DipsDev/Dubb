@@ -23,6 +23,10 @@ public class FunctionCall extends ASTNode {
         this.arguments = new ArrayList<>();
     }
 
+    /**
+     * Appends an argument value to the function call, which will be mapped by order of appendance
+     * @param argument the value of the argument
+     */
     public void appendArg(Object argument) {
         this.arguments.add(argument);
     }

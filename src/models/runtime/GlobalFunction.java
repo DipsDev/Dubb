@@ -30,6 +30,7 @@ public class GlobalFunction implements Executable {
         return function;
     }
 
+
     @Override
     public Object execute(List<Object> arguments, HashMap<String, Executable> functionHashMap, HashMap<String, RuntimeVariable> variableHashMap) {
         if (this.expectedArguments > 0 && this.expectedArguments != arguments.size()) {

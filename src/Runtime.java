@@ -19,10 +19,17 @@ public class Runtime extends MemoryStore {
         return __instance;
     }
 
+    /**
+     *  Adds a global function to the runtime
+     * @param func the function to be added
+     */
     private void addGlobalFunction(GlobalFunction func) {
         globalFunctions.put(func.getName(), func);
     }
 
+    /**
+     * Adds all global functions declared in the function itself
+     */
     public void addGlobalFunctions() {
         GlobalFunction print = new GlobalFunction("print", -1).run((arguments) -> {
             arguments.forEach((d) -> {
@@ -41,6 +48,10 @@ public class Runtime extends MemoryStore {
         addGlobalFunction(pow);
     }
 
+    /**
+     * Executes the program created by the parser
+     * @param program the program to be run, created by the parser
+     */
     public void execute(Program program) {
        List<ASTNode> body = program.getBody();
        this.addGlobalFunctions();

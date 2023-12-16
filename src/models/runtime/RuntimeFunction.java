@@ -28,6 +28,10 @@ public class RuntimeFunction extends MemoryStore implements Executable {
         this.body = body;
     }
 
+    /**
+     * Runs the function execution loop
+     * @return the function value, or null if no return statement was specified
+     */
     private Object functionLoop() {
         List<ASTNode> body = this.body;
         for (ASTNode nd : body) {

@@ -33,9 +33,18 @@ public class Function extends ASTNode {
         this.body = new ArrayList<>();
     }
 
+    /**
+     * Appends an argument to the argument list
+     * @param argument the argument to be added
+     */
     public void appendArgument(String argument) {
         this.arguments.add(argument);
     }
+
+    /**
+     * Appends a node to the function body
+     * @param node the node to be appended
+     */
     public void appendBodyStatement(ASTNode node) {
         this.body.add(node);
     }

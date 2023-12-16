@@ -23,7 +23,12 @@ public class Parser {
         this.tokens = new Lexer().tokenize(sourceCode);
     }
 
-    // var x = 4
+    /**
+     * Parses variable declaration statement, into AST nodes
+     * @param isConstant whether the variable created should be a constant
+     * @return the created AST node
+     * @throws ParseException
+     */
     private ASTNode parseVariableDeclaration(boolean isConstant) throws ParseException {
         this.tokens.remove(); // var
         Token variable = this.tokens.remove();
@@ -66,6 +71,11 @@ public class Parser {
 
     }
 
+    /**
+     * Parses a return statement into an AST node
+     * @return the return statement as an AST node
+     * @throws ParseException
+     */
     private ASTNode parseReturnStatement() throws ParseException {
         this.tokens.remove(); // remove the RETURN keyword
         Token returnValue = this.tokens.remove();
@@ -85,6 +95,11 @@ public class Parser {
 
     }
 
+    /**
+     * Parses a function declaration statement
+     * @return the AST node representing the function declaration statement
+     * @throws ParseException
+     */
     private ASTNode parseFunctionDeclaration() throws ParseException {
         // func name(args) {}
         this.tokens.remove(); // removes the func keyword
@@ -144,13 +159,14 @@ public class Parser {
 
         return function;
 
-
-
-
-
     }
 
-    // usage: x = 3
+    /**
+     * Parses a modify variable statement, meaning the function should be run every new assignment of a variable
+     * @param variableName the variable that is being reassigned
+     * @return the AST node representing the modification statement
+     * @throws ParseException
+     */
     private ASTNode parseModifyStatements(Token variableName) throws ParseException {
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
             throw new Error("Expected = after modify statement");
@@ -172,6 +188,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses a function call, which is called anytime an identifier is used with a parentheses. example: a()
+     * @param name the function name that is being called
+     * @return the AST node representing the function call
+     * @throws ParseException
+     */
     private ASTNode parseFunctionCall(Token name) throws ParseException {
         FunctionCall func = new FunctionCall(name.getValue());
         this.tokens.remove(); // remove the open paran
@@ -217,6 +239,11 @@ public class Parser {
     }
 
 
+    /**
+     * Parses the main statements, and redirects to the specific parsers
+     * @return the AST node representing the current token type
+     * @throws ParseException
+     */
     private ASTNode parseStatements() throws ParseException {
         Token token = this.tokens.peek();
         switch (token.getType()) {
@@ -246,6 +273,12 @@ public class Parser {
         throw new Error("Unexpected Type " + token.getType());
     }
 
+    /**
+     * Parses the additive expression (+, -)
+     * @param start start from a specific token, or null if to remove one
+     * @return the AST node representing the expression
+     * @throws ParseException
+     */
     private ASTNode parseAdditiveExpression(Token start) throws ParseException {
         ASTNode left = this.parseMultiExpression(start);
 
@@ -258,6 +291,12 @@ public class Parser {
 
     }
 
+    /**
+     * Parses the multi expression (*, /)
+     * @param start start from a specific token, or null if to remove one
+     * @return the AST node representing the expression
+     * @throws ParseException
+     */
     private ASTNode parseMultiExpression(Token start) throws ParseException {
         ASTNode left = this.parsePrimaryExpression(start);
 
@@ -269,6 +308,12 @@ public class Parser {
         return left;
     }
 
+    /**
+     * Parses the primary expression(number, variable)
+     * @param start start from a specific token, or null if to remove one
+     * @return the AST node representing the expression
+     * @throws ParseException
+     */
     private ASTNode parsePrimaryExpression(Token start) throws ParseException {
         Token current = start;
         if (current == null) {
@@ -294,6 +339,12 @@ public class Parser {
 
         }
     }
+
+    /**
+     * Builds the AST
+     * @return the AST program
+     * @throws ParseException
+     */
     public Program build() throws ParseException {
         Program program = new Program();
 
