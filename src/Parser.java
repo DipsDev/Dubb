@@ -179,8 +179,25 @@ public class Parser {
                 Token variableStringValue = this.tokens.remove();
                 return new ModifyVariable<>(variableName.getValue(), variableStringValue.getValue());
             }
+            case IDENTIFIER -> {
+                Token identifierValue = this.tokens.remove();
+                if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
+                    return new ModifyVariable<>(variableName.getValue(), parseFunctionCall(identifierValue));
+                }
+                if (this.tokens.peek().getType() == TokenType.BINARY_OPERATOR) {
+                    return new ModifyVariable<>(variableName.getValue(), parseAdditiveExpression(identifierValue));
+                }
+                if (this.tokens.peek().getType() == TokenType.BOOLEAN_OPERATOR) {
+                    return new ModifyVariable<>(variableName.getValue(), parseBooleanExpression(identifierValue));
+                }
+                throw new Error("Not Implemented, got " + identifierValue.getValue());
+            }
             default -> {
-                ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
+                Token value = this.tokens.remove();
+                if (this.tokens.peek().getType() == TokenType.BOOLEAN_OPERATOR) {
+                    return new ModifyVariable<>(variableName.getValue(), parseBooleanExpression(value));
+                }
+                ASTNode mathExpression = this.parseAdditiveExpression(value); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
                     return new ModifyVariable<>(variableName.getValue(), (BinaryExpression) mathExpression);
                 return new ModifyVariable<>(variableName.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+'));

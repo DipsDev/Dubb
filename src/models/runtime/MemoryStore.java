@@ -383,6 +383,9 @@ public abstract class MemoryStore {
             else if (modifyVariable.getNewValue() instanceof BinaryExpression binE) {
                 var.setValue(evaluateBinaryExpression(binE));
             }
+            else if (modifyVariable.getNewValue() instanceof BooleanExpression be) {
+                var.setValue(evaluateBooleanExpression(be));
+            }
             else {
                 throw new RuntimeException("Unknown type");
             }
