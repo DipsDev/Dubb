@@ -28,6 +28,8 @@ public enum TokenType {
 
     EOF,
 
+    BOOLEAN_OPERATOR,
+
     BINARY_OPERATOR;
 
 }

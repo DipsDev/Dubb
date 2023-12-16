@@ -7,6 +7,7 @@ import models.ast.interfaces.ASTNode;
 import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
 import models.ast.types.BinaryExpression;
+import models.ast.types.BooleanExpression;
 import models.ast.types.NumericLiteral;
 
 import java.util.HashMap;
@@ -66,6 +67,10 @@ public abstract class MemoryStore {
         else if (arg instanceof BinaryExpression binE) {
             return evaluateBinaryExpression(binE);
         }
+        else if (arg instanceof BooleanExpression boolE) {
+            return evaluateBooleanExpression(boolE);
+
+        }
         else if (arg instanceof NumericLiteral) {
             return ((NumericLiteral) arg).getValue();
         }
@@ -97,6 +102,72 @@ public abstract class MemoryStore {
 
     }
 
+    private boolean evaluateBooleanExpression(ASTNode node) {
+        if (node == null) {
+            return false;
+        }
+
+        if (node instanceof NumericLiteral) {
+            return true;
+        }
+
+        if (node instanceof VariableInstance vi) {
+            if (!this.scopeVariables.containsKey(vi.getName())) {
+                throw new Error("Unknown variable usage: " + vi.getName());
+            }
+
+            // check if the variable is being reused
+
+            RuntimeVariable var = this.scopeVariables.get(vi.getName());
+            if (var.getValue() instanceof Number nm) {
+                return nm.doubleValue() != 0;
+            }
+            throw new Error("Not Implemented, got " + var.getValue().getClass());
+        }
+        if (node instanceof FunctionCall fc) {
+            if (!functionHashMap.containsKey(fc.getName())) {
+                throw new Error("Unknown function usage: " + fc.getName());
+            }
+            Executable function = functionHashMap.get(fc.getName());
+            fc.getArguments().replaceAll(this::evaluateObject);
+            Object functionReturnValue = function.execute(fc.getArguments(), functionHashMap, scopeVariables);
+            if (!(functionReturnValue instanceof Number)) {
+                throw new Error("Cannot add types other than numbers");
+            }
+            return ((Number) functionReturnValue).doubleValue() != 0;
+
+        }
+        if (node instanceof BinaryExpression) {
+            return computeBinaryExpression((BinaryExpression) node) != 0;
+        }
+        return computeBooleanExpression((BooleanExpression) node);
+
+    }
+
+    private boolean computeBooleanExpression(BooleanExpression node) {
+        switch (node.getOperator()) {
+            case "<=" -> {
+                return evaluateBinaryExpression(node.getLeft()) <= evaluateBinaryExpression(node.getRight());
+            }
+            case ">=" -> {
+                return evaluateBinaryExpression(node.getLeft()) >= evaluateBinaryExpression(node.getRight());
+            }
+            case "!=" -> {
+                return evaluateBinaryExpression(node.getLeft()) != evaluateBinaryExpression(node.getRight());
+            }
+            case ">" -> {
+                return evaluateBinaryExpression(node.getLeft()) > evaluateBinaryExpression(node.getRight());
+            }
+            case "<" -> {
+                return evaluateBinaryExpression(node.getLeft()) < evaluateBinaryExpression(node.getRight());
+            }
+            default -> {
+                return evaluateBinaryExpression(node.getLeft()) == evaluateBinaryExpression(node.getRight());
+            }
+        }
+
+
+    }
 
 
     protected void applyVariableChanges(Variable<?> variable) {
@@ -199,6 +270,9 @@ public abstract class MemoryStore {
         if (nd instanceof BinaryExpression) {
             evaluateBinaryExpression(nd);
         }
+        if (nd instanceof BooleanExpression) {
+            evaluateBooleanExpression(nd);
+        }
         else if (nd instanceof Function) {
             applyFunctionChanges((Function) nd);
         }
@@ -219,6 +293,9 @@ public abstract class MemoryStore {
                 else if (arg instanceof NumericLiteral) {
                     functionCall.getArguments().set(i, ((NumericLiteral) arg).getValue());
                 }
+                else if (arg instanceof BooleanExpression be) {
+                    functionCall.getArguments().set(i, evaluateBooleanExpression(be));
+                }
                 else if (arg instanceof VariableInstance vi) {
                     if (!scopeVariables.containsKey(vi.getName())) {
                         throw new Error("Unknown variable usage: " + vi.getName());
@@ -230,8 +307,11 @@ public abstract class MemoryStore {
                     if (var.getValue() instanceof Number) {
                         functionCall.getArguments().set(i, ((Number) var.getValue()).doubleValue());
                     }
+                    if (var.getValue() instanceof Boolean) {
+                        functionCall.getArguments().set(i, var.getValue());
+                    }
                     else {
-                        throw new Error("Variable type isn't supported");
+                        throw new Error("Variable type isn't supported, got type " + var.getValue().getClass());
                     }
                 }
 

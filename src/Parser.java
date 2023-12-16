@@ -5,6 +5,7 @@ import models.ast.functions.ReturnExpression;
 import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
 import models.ast.types.BinaryExpression;
+import models.ast.types.BooleanExpression;
 import models.ast.types.NumericLiteral;
 import models.ast.interfaces.ASTNode;
 import models.ast.functions.ModifyVariable;
@@ -43,12 +44,20 @@ public class Parser {
                 if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
                     return new Variable<>(variable.getValue(), parseFunctionCall(variableName));
                 }
-                ASTNode mathExpression = this.parseAdditiveExpression(variableName); // can return NumberLiteral, or BinaryExpression
-                return new Variable<BinaryExpression>(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
-
+                if (this.tokens.peek().getType() == TokenType.BINARY_OPERATOR) {
+                    return new Variable<>(variable.getValue(), parseAdditiveExpression(variableName));
+                }
+                if (this.tokens.peek().getType() == TokenType.BOOLEAN_OPERATOR) {
+                    return new Variable<>(variable.getValue(), parseBooleanExpression(variableName));
+                }
+                throw new Error("Not Implemented, got " + variableName.getValue());
             }
             default -> {
-                ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
+                Token value = this.tokens.remove();
+                if (this.tokens.peek().getType() == TokenType.BOOLEAN_OPERATOR) {
+                    return new Variable<>(variable.getValue(), parseBooleanExpression(value));
+                }
+                ASTNode mathExpression = this.parseAdditiveExpression(value); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
                     return new Variable<BinaryExpression>(variable.getValue(), (BinaryExpression) mathExpression);
                 return new Variable<BinaryExpression>(variable.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+')).setConstant(isConstant);
@@ -175,9 +184,17 @@ public class Parser {
                     func.appendArg(stringArg.getValue());
                 }
                 case NUMBER, IDENTIFIER -> {
-                    Token current = tokens.remove();
-                    ASTNode mathExpression = this.parseAdditiveExpression(current);
-                    func.appendArg(mathExpression);
+                    Token removed = this.tokens.remove();
+                    if (this.tokens.peek().getType() == TokenType.EQUALS) {
+                        func.appendArg(parseModifyStatements(removed));
+                    } else if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) { // start of function call
+                        func.appendArg(parseFunctionCall(removed));
+                    } else if (this.tokens.peek().getType() == TokenType.BOOLEAN_OPERATOR) {
+                        func.appendArg(parseBooleanExpression(removed));
+                    }
+                    else {
+                        func.appendArg(parseAdditiveExpression(removed));
+                    }
                 }
                 default -> {
                     throw new Error("Not Implemented, got " + this.tokens.peek().getType());
@@ -186,6 +203,17 @@ public class Parser {
         }
         this.tokens.remove(); // remove the close paran
         return func;
+    }
+
+    private ASTNode parseBooleanExpression(Token left) throws ParseException {
+        if (left == null) {
+            left = tokens.remove();
+        }
+        Token operator = tokens.remove();
+        Token rightSide = tokens.remove();
+        return new BooleanExpression(parseAdditiveExpression(left), parseAdditiveExpression(rightSide), operator.getValue());
+
+
     }
 
 
@@ -198,6 +226,8 @@ public class Parser {
                     return parseModifyStatements(removed);
                 } else if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) { // start of function call
                     return parseFunctionCall(removed);
+                } else if (this.tokens.peek().getType() == TokenType.BOOLEAN_OPERATOR) {
+                    return parseBooleanExpression(removed);
                 }
                 return parseAdditiveExpression(removed);
             }

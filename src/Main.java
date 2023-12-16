@@ -6,17 +6,9 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        var y = 0;
-                        func f2(num) {
-                            return num * num;
-                        }
-                        func pow(num) {
-                            return num * f2(num);
-                        }
-                        
-                        final var x = pow(2);
-                        print(x);
-                        print(pow(x + 5));
+                        var x = 10;
+                        var y = 10;
+                        print(y != x);
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);

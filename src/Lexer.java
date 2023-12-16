@@ -40,7 +40,16 @@ public class Lexer {
         Queue<Token> list = new LinkedList<>();
         while (!code.isEmpty()) {
             char current = code.remove();
-            if (current == '+' || current == '-' || current == '/' || current == '*') {
+            char next = code.peek() == null ? (char) 0 : code.peek();
+            if (current == '>' || current == '<' || (current == '!' && next == '=') || (current == '=' && next == '=')) {
+                if (next == '=') {
+                    code.remove();
+                    list.add(new Token(TokenType.BOOLEAN_OPERATOR, "" + current + next));
+                } else {
+                    list.add(new Token(TokenType.BOOLEAN_OPERATOR, Character.toString(current)));
+                }
+            }
+            else if (current == '+' || current == '-' || current == '/' || current == '*') {
                 list.add(new Token(TokenType.BINARY_OPERATOR, Character.toString(current)));
             } else if (current == '=') {
                 list.add(new Token(TokenType.EQUALS, Character.toString(current)));
