@@ -264,7 +264,7 @@ public class Parser {
 
         }
     }
-    public Program buildTree() throws ParseException {
+    public Program build() throws ParseException {
         Program program = new Program();
 
         while (!tokens.isEmpty() && tokens.peek().getType() != TokenType.EOF) {

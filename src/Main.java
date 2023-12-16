@@ -6,6 +6,7 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
+                        var y = 0;
                         func f2(num) {
                             return num * num;
                         }
@@ -14,14 +15,16 @@ public class Main {
                         }
                         
                         final var x = pow(2);
-                        print(x, 4, 5, 6);
+                        print(x);
+                        print(pow(x + 5));
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);
         q.forEach(System.out::println);
 
 
-        Runtime.getInstance().execute(new Parser(code).buildTree());
+
+        Runtime.getInstance().execute(new Parser(code).build());
 
 
     }

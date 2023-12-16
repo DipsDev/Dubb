@@ -21,7 +21,9 @@ public class Runtime extends MemoryStore {
 
     public void addGlobalFunctions() {
         GlobalFunction print = new GlobalFunction("print", (arguments) -> {
-            System.out.println(arguments);
+            arguments.forEach((d) -> {
+                System.out.print(d + " ");
+            });
             return null;
         });
         globalFunctions.put("print", print);

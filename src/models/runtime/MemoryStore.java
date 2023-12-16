@@ -197,7 +197,7 @@ public abstract class MemoryStore {
 
     protected void run(ASTNode nd) {
         if (nd instanceof BinaryExpression) {
-            System.out.println(evaluateBinaryExpression(nd));
+            evaluateBinaryExpression(nd);
         }
         else if (nd instanceof Function) {
             applyFunctionChanges((Function) nd);
