@@ -15,8 +15,8 @@ public class FunctionCall extends ASTNode {
         return arguments;
     }
 
-    private String name;
-    private List<Object> arguments;
+    private final String name;
+    private final List<Object> arguments;
     public FunctionCall(String name) {
         super(ASTNodeType.FUNCTION);
         this.name = name;

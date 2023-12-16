@@ -6,9 +6,9 @@ import java.util.function.Function;
 
 public class GlobalFunction implements Executable {
 
-    private String name;
+    private final String name;
 
-    private int expectedArguments;
+    private final int expectedArguments;
 
     private Function<List<Object>, Object> function;
 

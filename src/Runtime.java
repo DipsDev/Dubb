@@ -10,7 +10,7 @@ import java.util.List;
 public class Runtime extends MemoryStore {
     private static Runtime __instance;
 
-    private static HashMap<String, Executable> globalFunctions = new HashMap<>();
+    private static final HashMap<String, Executable> globalFunctions = new HashMap<>();
 
     public static Runtime getInstance() {
         if (__instance == null) {

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Function extends ASTNode {
 
-    private String name;
+    private final String name;
     private final List<String> arguments;
 
     private final List<ASTNode> body;

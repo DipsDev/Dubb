@@ -183,7 +183,7 @@ public class Parser {
                 ASTNode mathExpression = this.parseAdditiveExpression(null); // can return NumberLiteral, or BinaryExpression
                 if (mathExpression instanceof BinaryExpression)
                     return new ModifyVariable<>(variableName.getValue(), (BinaryExpression) mathExpression);
-                return new ModifyVariable<>(variableName.getValue(), new BinaryExpression((NumericLiteral) mathExpression, new NumericLiteral(0), '+'));
+                return new ModifyVariable<>(variableName.getValue(), new BinaryExpression(mathExpression, new NumericLiteral(0), '+'));
             }
         }
     }

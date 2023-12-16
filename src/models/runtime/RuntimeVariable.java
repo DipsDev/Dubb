@@ -2,7 +2,7 @@ package models.runtime;
 
 
 public class RuntimeVariable {
-    private String name;
+    private final String name;
     private Object value;
 
     private boolean constant;
@@ -26,9 +26,6 @@ public class RuntimeVariable {
         return constant;
     }
 
-    public String getName() {
-        return name;
-    }
 
     public Object getValue() {
         return value;

@@ -1,7 +1,6 @@
 import models.token.Token;
 import models.token.TokenType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -67,7 +66,6 @@ public class Lexer {
             }
             else if (current == ' ' || current == '\n' || current == '\t' || current == ',') {
                 // Ignore blank chars
-                continue;
             }
             else if (current == '{') {
                 list.add(new Token(TokenType.OPEN_STATEMENT, "{"));
