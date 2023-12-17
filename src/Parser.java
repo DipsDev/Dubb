@@ -87,12 +87,11 @@ public class Parser {
             return new ReturnExpression(parseAdditiveExpression(returnValue));
         }
         if (returnValue.getType() == TokenType.IDENTIFIER) {
+            System.out.println(this.tokens.remove()); // remove ; sign
             if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
                 return new ReturnExpression(parseFunctionCall(returnValue));
             }
             return new ReturnExpression(parseAdditiveExpression(returnValue));
-
-
         }
         throw new Error("Not implemented, return type of " + returnValue.getType());
 
@@ -127,25 +126,28 @@ public class Parser {
         // append body to the function
         while (this.tokens.peek().getType() != TokenType.CLOSE_STATEMENT) {
             ASTNode node = this.parseStatements(Optional.of((token -> {
-                switch (token.getType()) {
-                    case RETURN -> {
-                        try {
+                try {
+                    switch (token.getType()) {
+                        case RETURN -> {
                             return parseReturnStatement();
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
                         }
-
-                    }
-                    default -> {
-                        try {
+                        case EOL -> {
+                            this.tokens.remove();
+                            return null;
+                        }
+                        default -> {
                             throw new ParseException("Couldn't parse correctly, got type " + tokens.peek().getType(), tokens.size());
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
+
                         }
                     }
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
                 }
             })));
-            function.appendBodyStatement(node);
+            if (node != null) {
+                function.appendBodyStatement(node);
+            }
+
         }
         // remove the close statement
         this.tokens.remove();
@@ -234,7 +236,6 @@ public class Parser {
             }
         }
         this.tokens.remove(); // remove the close paran
-        this.tokens.remove(); // removes ;
         return func;
     }
 
@@ -304,7 +305,27 @@ public class Parser {
         }
         IfStatement ifStatement = new IfStatement(booleanExpression);
         while (this.tokens.peek().getType() != TokenType.CLOSE_STATEMENT) {
-            ifStatement.appendBody(this.parseStatements(Optional.empty()));
+            ASTNode node = this.parseStatements(Optional.of((token -> {
+                try {
+                    switch (token.getType()) {
+                        case RETURN -> {
+                            return parseReturnStatement();
+
+
+                        }
+                        case EOL -> {
+                            return null;
+                        }
+                        default -> {
+                            throw new ParseException("Couldn't parse correctly, got type " + tokens.peek().getType(), tokens.size());
+
+                        }
+                    }
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            })));
+            ifStatement.appendBody(node);
         }
         this.tokens.remove();
         return ifStatement;
@@ -392,7 +413,8 @@ public class Parser {
                 tokens.remove();
                 continue;
             }
-            program.append(parseStatements(Optional.empty()));
+            ASTNode nd = parseStatements(Optional.empty());
+            program.append(nd);
         }
 
         return program;

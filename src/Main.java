@@ -8,10 +8,10 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        var dx = 100;
-                        if dx > 8 {
-                            print(55);
+                        func sum(a) {
+                            return a;
                         }
+                        print(sum(10));
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);
