@@ -6,6 +6,7 @@ import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
 import models.ast.types.BinaryExpression;
 import models.ast.types.BooleanExpression;
+import models.ast.types.IfStatement;
 import models.ast.types.NumericLiteral;
 import models.ast.interfaces.ASTNode;
 import models.ast.functions.ModifyVariable;
@@ -29,7 +30,7 @@ public class Parser {
      * @return the created AST node
      * @throws ParseException
      */
-    private ASTNode parseVariableDeclaration(boolean isConstant) throws ParseException {
+    private Variable<?> parseVariableDeclaration(boolean isConstant) throws ParseException {
         this.tokens.remove(); // var
         Token variable = this.tokens.remove();
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
@@ -76,7 +77,7 @@ public class Parser {
      * @return the return statement as an AST node
      * @throws ParseException
      */
-    private ASTNode parseReturnStatement() throws ParseException {
+    private ReturnExpression parseReturnStatement() throws ParseException {
         this.tokens.remove(); // remove the RETURN keyword
         Token returnValue = this.tokens.remove();
         if (returnValue.getType() == TokenType.NUMBER) {
@@ -100,7 +101,7 @@ public class Parser {
      * @return the AST node representing the function declaration statement
      * @throws ParseException
      */
-    private ASTNode parseFunctionDeclaration() throws ParseException {
+    private Function parseFunctionDeclaration() throws ParseException {
         // func name(args) {}
         this.tokens.remove(); // removes the func keyword
         Token nameWithArguments = this.tokens.remove();
@@ -167,7 +168,7 @@ public class Parser {
      * @return the AST node representing the modification statement
      * @throws ParseException
      */
-    private ASTNode parseModifyStatements(Token variableName) throws ParseException {
+    private ModifyVariable<?> parseModifyStatements(Token variableName) throws ParseException {
         if (this.tokens.peek().getType() != TokenType.EQUALS) {
             throw new Error("Expected = after modify statement");
         }
@@ -211,7 +212,7 @@ public class Parser {
      * @return the AST node representing the function call
      * @throws ParseException
      */
-    private ASTNode parseFunctionCall(Token name) throws ParseException {
+    private FunctionCall parseFunctionCall(Token name) throws ParseException {
         FunctionCall func = new FunctionCall(name.getValue());
         this.tokens.remove(); // remove the open paran
         while (this.tokens.peek().getType() != TokenType.CLOSE_PARAN) {
@@ -244,7 +245,7 @@ public class Parser {
         return func;
     }
 
-    private ASTNode parseBooleanExpression(Token left) throws ParseException {
+    private BooleanExpression parseBooleanExpression(Token left) throws ParseException {
         if (left == null) {
             left = tokens.remove();
         }
@@ -286,8 +287,18 @@ public class Parser {
             case FUNCTION -> {
                 return parseFunctionDeclaration();
             }
+            case IF -> {
+                return parseIfStatement();
+            }
         }
         throw new Error("Unexpected Type " + token.getType());
+    }
+
+    /**
+     * Parses an if statement and returns it
+     * @return the parsed if statement
+     */
+    private IfStatement parseIfStatement() {
     }
 
     /**

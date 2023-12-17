@@ -21,6 +21,7 @@ public enum TokenType {
     CLOSE_PARAN, // )
 
     RETURN,
+    IF,
 
     VAR,
 
