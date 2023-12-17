@@ -314,6 +314,7 @@ public class Parser {
 
                         }
                         case EOL -> {
+                            this.tokens.remove();
                             return null;
                         }
                         default -> {
@@ -325,7 +326,9 @@ public class Parser {
                     throw new RuntimeException(e);
                 }
             })));
-            ifStatement.appendBody(node);
+            if (node != null) {
+                ifStatement.appendBody(node);
+            }
         }
         this.tokens.remove();
         return ifStatement;

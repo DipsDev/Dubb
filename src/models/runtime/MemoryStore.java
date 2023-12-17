@@ -3,6 +3,7 @@ package models.runtime;
 import models.ast.functions.Function;
 import models.ast.functions.FunctionCall;
 import models.ast.functions.ModifyVariable;
+import models.ast.functions.ReturnExpression;
 import models.ast.interfaces.ASTNode;
 import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
@@ -11,6 +12,7 @@ import models.ast.types.BooleanExpression;
 import models.ast.types.IfStatement;
 import models.ast.types.NumericLiteral;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -69,7 +71,7 @@ public abstract class MemoryStore {
             return arg;
         }
         else if (arg instanceof Number) {
-            return ((Number) arg).doubleValue();
+            return ((Number) arg).intValue();
         }
         else if (arg instanceof BinaryExpression binE) {
             return evaluateBinaryExpression(binE);
@@ -105,7 +107,7 @@ public abstract class MemoryStore {
             functionCall.getArguments().replaceAll(this::evaluateObject);
             return function.execute(functionCall.getArguments(), functionHashMap, scopeVariables);
         }
-        throw new Error("Not Implemented, got " + arg.getClass() + " " + arg.toString());
+        throw new Error("Not Implemented, got " + arg.getClass() + " " + arg);
 
     }
 
@@ -277,7 +279,8 @@ public abstract class MemoryStore {
                 throw new Error("Unknown function usage: " + fc.getName());
             }
             Executable function = functionHashMap.get(fc.getName());
-            fc.getArguments().replaceAll(this::evaluateObject);
+
+            fc.getArguments().replaceAll(arg -> ((Number) this.evaluateObject(arg)).intValue());
             Object functionReturnValue = function.execute(fc.getArguments(), functionHashMap, scopeVariables);
             if (!(functionReturnValue instanceof Number)) {
                 throw new Error("Cannot add types other than numbers");
@@ -310,10 +313,10 @@ public abstract class MemoryStore {
      * @return the value of the returned function call
      */
     protected Object resolveFunctionCall(FunctionCall functionCall) {
+        System.out.println(functionHashMap);
         if (!functionHashMap.containsKey(functionCall.getName())) {
             throw new Error("Unknown function usage: " + functionCall.getName());
         }
-
         Executable function = functionHashMap.get(functionCall.getName());
         for (int i = 0; i<functionCall.getArguments().size(); i++) {
             Object arg = functionCall.getArguments().get(i);
@@ -359,13 +362,17 @@ public abstract class MemoryStore {
     /**
      * Runs the store main loop and handles changes
      * @param nd current node to traverse on
+     * @return returns the value of the executes
      */
-    protected void run(ASTNode nd) {
+    protected Object run(ASTNode nd) {
         if (nd instanceof Function) {
             applyFunctionChanges((Function) nd);
         }
         else if (nd instanceof IfStatement) {
-            resolveIfStatement((IfStatement) nd);
+            Object value = resolveIfStatement((IfStatement) nd);
+            if (value != null) {
+                return value;
+            }
         }
         else if (nd instanceof FunctionCall functionCall) {
             this.resolveFunctionCall(functionCall);
@@ -394,15 +401,25 @@ public abstract class MemoryStore {
                 throw new RuntimeException("Unknown type");
             }
         }
+        return null;
     }
 
-    private void resolveIfStatement(IfStatement nd) {
+    private Object resolveIfStatement(IfStatement nd) {
         boolean result = this.computeBooleanExpression(nd.getValue());
         if (result) {
             for (ASTNode node : nd.getBody()) {
+                if (node instanceof ReturnExpression re) {
+                    if (this instanceof RuntimeFunction rf) {
+                        return rf.evaluateObject(re.getValue());
+                    } else {
+                        throw new Error("Return statement outside function");
+                    }
+                }
                 this.run(node);
+
             }
         }
+        return null;
     }
 }
 

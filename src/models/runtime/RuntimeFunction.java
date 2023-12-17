@@ -20,6 +20,13 @@ public class RuntimeFunction extends MemoryStore implements Executable {
     private List<ASTNode> body;
 
 
+    public String getName() {
+        return name;
+    }
+
+    public List<ASTNode> getBody() {
+        return body;
+    }
 
     public RuntimeFunction(String name, List<String> argumentNames, List<ASTNode> body) {
         super();
@@ -39,9 +46,11 @@ public class RuntimeFunction extends MemoryStore implements Executable {
             if (nd instanceof ReturnExpression re) {
                 return this.evaluateObject(re.getValue());
             }
-            else {
-                this.run(nd);
+            Object value = this.run(nd);
+            if (value != null) {
+                return value;
             }
+
         }
         return null;
     }
@@ -50,6 +59,7 @@ public class RuntimeFunction extends MemoryStore implements Executable {
     public Object execute(List<Object> arguments, HashMap<String, Executable> functionHashMap, HashMap<String, RuntimeVariable> variableHashMap) throws Error {
 
         this.resetStores(variableHashMap, functionHashMap);
+        this.functionHashMap.put(this.name, this);
 
         if (this.argumentNames.size() != arguments.size()) {
 
