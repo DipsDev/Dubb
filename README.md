@@ -9,28 +9,51 @@ A simple custom interpeter and a programming language
 ## Features
 
 ### Variables
-Variables are weakly typed, meaning their types can be changed at runtime
 ```javascript
-final var name = "Ido"; // this is a constant variable
-var age = 17;
-age += 1;
-age = "hello world" // that works too!
+final var favorite_number = 49; // this is a constant variable
+var age = 17; // this is not!
 ```
 
 ### Functions
-```javascript
-func sum(a, b) {
-  return a + b;
-}
+Dubb supports if statements using the `if` keyword, \
+and initializes function using the `func` keyword.
 
-var x = sum(5, 3 - 2  * 4 + 10);
-print(x);
+Note: that there are no `()` in the if statement.
+```javascript
+func max(a, b) {
+    if a > b { // if statement
+        return a;
+    }
+    if a <= b { // another if statement
+        return b;
+    }
+}
+print(max(3, 7));
 ```
+
+#### Global Functions
+There are currently two global functions.
+```javascript
+pow(x: int, y: int) == x^y // returns x to the power of y
+print(x: any) // prints out anything to the screen
+```
+
+
+
+
+### Math Equations
+Dubb supports basic math equations and follows the normal priority
+```
+final var y = 2;
+var x = 4 + 5 * pow(y, 2) - 4 / 2;
+print(x); // prints out 22
+```
+
 
 
 ## Roadmap
 
-- If statements
+- ~~If statements~~
 
 - Loops - while, for, foreach
 
