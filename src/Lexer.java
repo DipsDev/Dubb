@@ -23,6 +23,7 @@ public class Lexer {
         this.reservedKeywords.put(";", TokenType.EOL);
         this.reservedKeywords.put("func", TokenType.FUNCTION);
         this.reservedKeywords.put("return", TokenType.RETURN);
+        this.reservedKeywords.put("if", TokenType.IF);
 
     }
 
@@ -106,7 +107,7 @@ public class Lexer {
                 else if (Character.isAlphabetic(current)) {
                     StringBuilder stringVar = new StringBuilder();
                     stringVar.append(current);
-                    while (!code.isEmpty() && (Character.isAlphabetic(code.peek()) || Character.isDigit(code.peek()))) {
+                    while (!code.isEmpty() && (Character.isAlphabetic(code.peek()) || Character.isDigit(code.peek()) || code.peek() == '_')) {
                         stringVar.append(code.remove());
                     }
 

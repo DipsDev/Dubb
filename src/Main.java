@@ -1,14 +1,17 @@
 import models.token.Token;
+import models.token.TokenType;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Queue;
 
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        final var x = 10;
-                        x = 4;
-                        print(x);
+                        var dx = 100;
+                        if dx > 8 {
+                            print(55);
+                        }
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);
@@ -17,6 +20,7 @@ public class Main {
 
 
         Runtime.getInstance().execute(new Parser(code).build());
+
 
 
     }

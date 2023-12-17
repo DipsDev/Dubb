@@ -8,6 +8,7 @@ import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
 import models.ast.types.BinaryExpression;
 import models.ast.types.BooleanExpression;
+import models.ast.types.IfStatement;
 import models.ast.types.NumericLiteral;
 
 import java.util.HashMap;
@@ -363,6 +364,9 @@ public abstract class MemoryStore {
         if (nd instanceof Function) {
             applyFunctionChanges((Function) nd);
         }
+        else if (nd instanceof IfStatement) {
+            resolveIfStatement((IfStatement) nd);
+        }
         else if (nd instanceof FunctionCall functionCall) {
             this.resolveFunctionCall(functionCall);
         }
@@ -388,6 +392,15 @@ public abstract class MemoryStore {
             }
             else {
                 throw new RuntimeException("Unknown type");
+            }
+        }
+    }
+
+    private void resolveIfStatement(IfStatement nd) {
+        boolean result = this.computeBooleanExpression(nd.getValue());
+        if (result) {
+            for (ASTNode node : nd.getBody()) {
+                this.run(node);
             }
         }
     }

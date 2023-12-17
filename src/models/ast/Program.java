@@ -14,11 +14,6 @@ public class Program extends ASTNode {
         this.body = new ArrayList<>();
     }
 
-    public Program(List<ASTNode> body) {
-        super(ASTNodeType.PROGRAM);
-        this.body = body;
-    }
-
     public void append(ASTNode node) {
         this.body.add(node);
 

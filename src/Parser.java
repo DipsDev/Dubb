@@ -14,7 +14,10 @@ import models.token.Token;
 import models.token.TokenType;
 
 import java.text.ParseException;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Parser {
 
@@ -123,37 +126,26 @@ public class Parser {
 
         // append body to the function
         while (this.tokens.peek().getType() != TokenType.CLOSE_STATEMENT) {
-            switch (tokens.peek().getType()) {
-                case NUMBER, IDENTIFIER -> {
-                    Token removed = this.tokens.remove();
-                    if (this.tokens.peek().getType() == TokenType.EQUALS) {
-                        function.appendBodyStatement(parseModifyStatements(removed));
-                    }
-                    else if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) { // start of function call
-                        function.appendBodyStatement(parseFunctionCall(removed));
-                    }
-                    function.appendBodyStatement(parseAdditiveExpression(removed));
-                }
-                case VAR -> {
-                    // Variable declaration
-                    System.out.println(tokens.peek());
-                    function.appendBodyStatement(parseVariableDeclaration(false));
-                }
-                case CONST -> {
-                    this.tokens.remove(); // remove the const keywords
-                    function.appendBodyStatement(parseVariableDeclaration(true));
-                }
-                case EOL -> {
-                    this.tokens.remove();
-                }
-                case RETURN -> {
-                    function.appendBodyStatement(parseReturnStatement());
+            ASTNode node = this.parseStatements(Optional.of((token -> {
+                switch (token.getType()) {
+                    case RETURN -> {
+                        try {
+                            return parseReturnStatement();
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
 
+                    }
+                    default -> {
+                        try {
+                            throw new ParseException("Couldn't parse correctly, got type " + tokens.peek().getType(), tokens.size());
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                 }
-                default -> {
-                    throw new ParseException("Couldn't parse correctly, got type " + tokens.peek().getType(), tokens.size());
-                }
-            }
+            })));
+            function.appendBodyStatement(node);
         }
         // remove the close statement
         this.tokens.remove();
@@ -242,6 +234,7 @@ public class Parser {
             }
         }
         this.tokens.remove(); // remove the close paran
+        this.tokens.remove(); // removes ;
         return func;
     }
 
@@ -262,7 +255,7 @@ public class Parser {
      * @return the AST node representing the current token type
      * @throws ParseException
      */
-    private ASTNode parseStatements() throws ParseException {
+    private ASTNode parseStatements(Optional<java.util.function.Function<Token, ASTNode>> callback) throws ParseException {
         Token token = this.tokens.peek();
         switch (token.getType()) {
             case NUMBER, IDENTIFIER -> {
@@ -291,14 +284,31 @@ public class Parser {
                 return parseIfStatement();
             }
         }
-        throw new Error("Unexpected Type " + token.getType());
+        if (callback.isPresent()) {
+            return callback.get().apply(token);
+        }
+        else {
+            throw new Error("Unexpected Type " + token.getType() + " at char " + this.tokens.remove().getValue());
+        }
     }
 
     /**
      * Parses an if statement and returns it
      * @return the parsed if statement
      */
-    private IfStatement parseIfStatement() {
+    private IfStatement parseIfStatement() throws ParseException {
+        this.tokens.remove(); // removes the if keyword
+        BooleanExpression booleanExpression = this.parseBooleanExpression(null);
+        if (this.tokens.remove().getType() != TokenType.OPEN_STATEMENT) {
+            throw new Error("Couldn't parse code correctly, unknown token " + this.tokens.peek().getType());
+        }
+        IfStatement ifStatement = new IfStatement(booleanExpression);
+        while (this.tokens.peek().getType() != TokenType.CLOSE_STATEMENT) {
+            ifStatement.appendBody(this.parseStatements(Optional.empty()));
+        }
+        this.tokens.remove();
+        return ifStatement;
+
     }
 
     /**
@@ -382,7 +392,7 @@ public class Parser {
                 tokens.remove();
                 continue;
             }
-            program.append(parseStatements());
+            program.append(parseStatements(Optional.empty()));
         }
 
         return program;
