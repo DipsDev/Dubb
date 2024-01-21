@@ -4,6 +4,9 @@ import models.runtime.Executable;
 import models.runtime.GlobalFunction;
 import models.runtime.MemoryStore;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +14,8 @@ public class Runtime extends MemoryStore {
     private static Runtime __instance;
 
     private static final HashMap<String, Executable> globalFunctions = new HashMap<>();
+
+    private static final BufferedReader userInputReader = new BufferedReader(new InputStreamReader(System.in));
 
     public static Runtime getInstance() {
         if (__instance == null) {
@@ -46,6 +51,21 @@ public class Runtime extends MemoryStore {
             return Math.pow(((Number) arguments.get(0)).doubleValue(), ((Number) arguments.get(1)).doubleValue());
         });
         addGlobalFunction(pow);
+
+        GlobalFunction println = new GlobalFunction("println", -1).run((arguments) -> {
+           arguments.forEach(System.out::println);
+           return null;
+        });
+        addGlobalFunction(println);
+
+        GlobalFunction read = new GlobalFunction("readln", 0).run((emptyList) -> {
+            try {
+                return userInputReader.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        addGlobalFunction(read);
     }
 
     /**

@@ -4,10 +4,7 @@ import models.ast.functions.FunctionCall;
 import models.ast.functions.ReturnExpression;
 import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
-import models.ast.types.BinaryExpression;
-import models.ast.types.BooleanExpression;
-import models.ast.types.IfStatement;
-import models.ast.types.NumericLiteral;
+import models.ast.types.*;
 import models.ast.interfaces.ASTNode;
 import models.ast.functions.ModifyVariable;
 import models.token.Token;
@@ -87,11 +84,14 @@ public class Parser {
             return new ReturnExpression(parseAdditiveExpression(returnValue));
         }
         if (returnValue.getType() == TokenType.IDENTIFIER) {
-            System.out.println(this.tokens.remove()); // remove ; sign
+            // System.out.println(this.tokens.remove()); // remove ; sign
             if (this.tokens.peek().getType() == TokenType.OPEN_PARAN) {
                 return new ReturnExpression(parseFunctionCall(returnValue));
             }
             return new ReturnExpression(parseAdditiveExpression(returnValue));
+        }
+        if (returnValue.getType() == TokenType.STRING) {
+            return new ReturnExpression(new StringLiteral(returnValue.getValue()));
         }
         throw new Error("Not implemented, return type of " + returnValue.getType());
 

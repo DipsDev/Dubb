@@ -7,10 +7,7 @@ import models.ast.functions.ReturnExpression;
 import models.ast.interfaces.ASTNode;
 import models.ast.interfaces.Variable;
 import models.ast.interfaces.VariableInstance;
-import models.ast.types.BinaryExpression;
-import models.ast.types.BooleanExpression;
-import models.ast.types.IfStatement;
-import models.ast.types.NumericLiteral;
+import models.ast.types.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,7 +16,7 @@ import java.util.HashMap;
 /**
  * This class provides a skeletal body for a runtime that requires a store of variables and functions.
  */
-public abstract class MemoryStore {
+public class MemoryStore {
     protected HashMap<String, RuntimeVariable> scopeVariables;
 
     protected HashMap<String, Executable> functionHashMap;
@@ -82,6 +79,9 @@ public abstract class MemoryStore {
         }
         else if (arg instanceof NumericLiteral) {
             return ((NumericLiteral) arg).getValue();
+        }
+        else if (arg instanceof StringLiteral) {
+            return ((StringLiteral) arg).getValue();
         }
 
         else if (arg instanceof VariableInstance vi) {
@@ -313,7 +313,6 @@ public abstract class MemoryStore {
      * @return the value of the returned function call
      */
     protected Object resolveFunctionCall(FunctionCall functionCall) {
-        System.out.println(functionHashMap);
         if (!functionHashMap.containsKey(functionCall.getName())) {
             throw new Error("Unknown function usage: " + functionCall.getName());
         }
@@ -347,6 +346,9 @@ public abstract class MemoryStore {
                     functionCall.getArguments().set(i, ((Number) var.getValue()).doubleValue());
                 }
                 else if (var.getValue() instanceof Boolean) {
+                    functionCall.getArguments().set(i, var.getValue());
+                }
+                else if (var.getValue() instanceof String) {
                     functionCall.getArguments().set(i, var.getValue());
                 }
                 else {

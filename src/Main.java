@@ -8,21 +8,15 @@ import java.util.Queue;
 public class Main {
     public static void main(String[] args) throws ParseException {
         String code =   """
-                        func max(a, b) {
-                            if a > b {
-                                return a;
-                            }
-                            if a <= b {
-                                return b;
-                            }
-                        }
-                        print(max(3, 7));
-                        
+                        var x = 5;
+                        x = 7;
+                        println(x);
+                        x = "hello world";
+                        println(x);
                         """;
 
         Queue<Token> q = new Lexer().tokenize(code);
         q.forEach(System.out::println);
-
 
 
         Runtime.getInstance().execute(new Parser(code).build());

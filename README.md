@@ -35,7 +35,9 @@ print(max(3, 7));
 There are currently two global functions.
 ```javascript
 pow(x: int, y: int) == x^y // returns x to the power of y
-print(x: any) // prints out anything to the screen
+println(...x) // prints out anything to the screen, divided by new lines
+print(...x) // prints out anything to the screen
+readln() // reads out a string from the current input stream
 ```
 
 
